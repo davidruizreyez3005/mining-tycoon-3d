@@ -21,21 +21,21 @@ class_name WorkerDefinition
 @export var animations: Dictionary = {}  # Animation names
 
 func get_hire_cost() -> int:
-	return unlock_cost
+return unlock_cost
 
 func get_total_wage(minutes_worked: int) -> int:
-	return wage_per_minute * minutes_worked
+return wage_per_minute * minutes_worked
 
 func can_work_at_depth(depth: int) -> bool:
-	return depth >= required_unlock_depth
+return depth >= required_unlock_depth
 
 func has_ability(ability_id: String) -> bool:
-	return ability_id in special_abilities
+return ability_id in special_abilities
 
-func get_efficiency_with bonuses(bonuses: Dictionary) -> float:
-	var eff = base_efficiency
-	if bonuses.has("efficiency_multiplier"):
-		eff *= bonuses["efficiency_multiplier"]
-	if bonuses.has("prestige_bonus"):
-		eff *= (1.0 + bonuses["prestige_bonus"])
-	return clamp(eff, 0.1, 5.0)
+func get_efficiency_with_bonuses(bonuses: Dictionary) -> float:
+var eff = base_efficiency
+if bonuses.has("efficiency_multiplier"):
+eff *= bonuses["efficiency_multiplier"]
+if bonuses.has("prestige_bonus"):
+eff *= (1.0 + bonuses["prestige_bonus"])
+return clamp(eff, 0.1, 5.0)
