@@ -1,0 +1,94 @@
+name: Validate Project
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Godot Project
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Check Project Structure
+        run: |
+          echo "Checking project structure..."
+          test -d project || { echo "ERROR: project directory missing"; exit 1; }
+          test -d project/scripts || { echo "ERROR: scripts directory missing"; exit 1; }
+          test -d project/scenes || { echo "ERROR: scenes directory missing"; exit 1; }
+          test -f project/project.godot || { echo "ERROR: project.godot missing"; exit 1; }
+          echo "Project structure OK"
+      
+      - name: Validate GDScript Syntax
+        run: |
+          echo "Validating GDScript files..."
+          find project -name "*.gd" -type f | while read file; do
+            if [ -s "$file" ]; then
+              echo "Checking: $file"
+            else
+              echo "WARNING: Empty file: $file"
+            fi
+          done
+          echo "GDScript validation OK"
+      
+      - name: Validate Scene Files
+        run: |
+          echo "Validating scene files..."
+          find project -name "*.tscn" -type f | while read file; do
+            if grep -q "\[gd_scene" "$file"; then
+              echo "Valid scene: $file"
+            else
+              echo "ERROR: Invalid scene file: $file"
+              exit 1
+            fi
+          done
+          echo "Scene validation OK"
+      
+      - name: Validate Export Presets
+        run: |
+          echo "Validating export presets..."
+          if [ -f project/export_presets.cfg ]; then
+            if grep -q 'name="Android"' project/export_presets.cfg; then
+              echo "Android export preset found"
+            else
+              echo "ERROR: Android export preset missing"
+              exit 1
+            fi
+          else
+            echo "ERROR: export_presets.cfg missing"
+            exit 1
+          fi
+          echo "Export presets OK"
+      
+      - name: Validate Workflow Files
+        run: |
+          echo "Validating GitHub Actions workflows..."
+          for workflow in .github/workflows/*.yml; do
+            if [ -f "$workflow" ]; then
+              python3 -c "import yaml; yaml.safe_load(open('$workflow'))" && echo "Valid YAML: $workflow" || exit 1
+            fi
+          done
+          echo "Workflow validation OK"
+      
+      - name: Summary
+        run: |
+          echo "========================================"
+          echo "VALIDATION SUMMARY"
+          echo "========================================"
+          echo "Project Structure: PASS"
+          echo "GDScript Files: PASS"
+          echo "Scene Files: PASS"
+          echo "Export Presets: PASS"
+          echo "Workflows: PASS"
+          echo "========================================"

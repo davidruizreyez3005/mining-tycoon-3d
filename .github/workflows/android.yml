@@ -1,0 +1,104 @@
+name: Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  create:
+    tags:
+      - 'v*'
+
+env:
+  GODOT_VERSION: "4.2.2"
+  GODOT_PRESET: "Android"
+
+jobs:
+  android:
+    name: Build Android APK
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Download Godot
+        run: |
+          mkdir -p $HOME/godot
+          curl -L -o $HOME/godot/godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q $HOME/godot/godot.zip -d $HOME/godot
+          chmod +x $HOME/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64
+          ln -s $HOME/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 $HOME/godot/godot
+          echo "$HOME/godot" >> $GITHUB_PATH
+      
+      - name: Install Export Templates
+        run: |
+          mkdir -p $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          curl -L -o $HOME/godot/templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          cd $HOME/godot
+          unzip -q templates.tpz
+          mv templates/* $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          ls -la $HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+      
+      - name: Create Debug Keystore
+        run: |
+          mkdir -p $HOME/.android
+          keytool -genkey -v -keystore $HOME/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          echo "ANDROID_DEBUG_KEYSTORE=$HOME/.android/debug.keystore" >> $GITHUB_ENV
+          echo "ANDROID_DEBUG_KEYSTORE_PASS=android" >> $GITHUB_ENV
+          echo "ANDROID_DEBUG_KEY_ALIAS=androiddebugkey" >> $GITHUB_ENV
+          echo "ANDROID_DEBUG_KEY_PASS=android" >> $GITHUB_ENV
+      
+      - name: Validate Project
+        run: |
+          cd project
+          godot --headless --editor --quit
+          echo "Project validation completed"
+      
+      - name: Export APK
+        run: |
+          cd project
+          mkdir -p build
+          export GODOT_ANDROID_KEYSTORE_RELEASE_PATH=$HOME/.android/debug.keystore
+          export GODOT_ANDROID_KEYSTORE_RELEASE_USER=androiddebugkey
+          export GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD=android
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/debug.keystore
+          export GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android
+          
+          godot --headless --path . --export-release "${GODOT_PRESET}" build/mining-tycoon.apk
+          
+          if [ -f build/mining-tycoon.apk ]; then
+            ls -lh build/mining-tycoon.apk
+            SIZE=$(stat -c%s build/mining-tycoon.apk)
+            if [ $SIZE -gt 1000000 ]; then
+              echo "APK size check passed: $SIZE bytes"
+            else
+              echo "ERROR: APK too small ($SIZE bytes)"
+              exit 1
+            fi
+          else
+            echo "ERROR: APK not created"
+            exit 1
+          fi
+      
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mining-tycoon-android
+          path: project/build/mining-tycoon.apk
+          if-no-files-found: error
+      
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: project/build/mining-tycoon.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
