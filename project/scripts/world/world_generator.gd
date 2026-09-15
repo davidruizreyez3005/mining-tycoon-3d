@@ -120,7 +120,7 @@ func _get_surface_height(x: float, z: float) -> float:
 # Add some variation based on biome
 match biome:
     BiomeType.MOUNTAIN:
-    height *= 2.0
+        height *= 2.0
 BiomeType.ARID:
     height *= 0.7
 BiomeType.VOLCANIC:
@@ -209,8 +209,8 @@ generation_progress.emit(1.0)
 
 func get_resource_at_position(position: Vector3) -> Dictionary:
     for node in resource_nodes:
-    if node["extracted"] >= node["amount"]:
-        continue
+        if node["extracted"] >= node["amount"]:
+            continue
 
 var dist = position.distance_to(node["position"])
 if dist <= node["size"]:

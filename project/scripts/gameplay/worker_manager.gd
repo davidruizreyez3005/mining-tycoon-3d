@@ -130,8 +130,8 @@ if worker not in available_workers:
 
 func _on_worker_state_changed(worker: Worker, new_state: String) -> void:
     if new_state == "idle":
-    if worker in busy_workers:
-        busy_workers.erase(worker)
+        if worker in busy_workers:
+            busy_workers.erase(worker)
 if worker not in available_workers:
     available_workers.append(worker)
 elif new_state in ["working", "moving_to_task", "carrying"]:

@@ -110,12 +110,12 @@ last_touch_position = current_pos
 
 func _handle_keyboard_events(event: InputEvent) -> void:
     if event is InputEventKey:
-    if not event.pressed:
-        return
+        if not event.pressed:
+            return
 
 match event.keycode:
     KEY_ESCAPE:
-    ui_tapped.emit("pause")
+        ui_tapped.emit("pause")
 KEY_SPACE:
     ui_tapped.emit("speed_toggle")
 

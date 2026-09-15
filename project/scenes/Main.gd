@@ -51,7 +51,7 @@ else:
 func _on_ui_tapped(ui_element: String) -> void:
     match ui_element:
         "pause":
-    _toggle_pause()
+        _toggle_pause()
 "speed_toggle":
     _toggle_speed()
 

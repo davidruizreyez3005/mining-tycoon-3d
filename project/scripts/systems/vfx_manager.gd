@@ -115,14 +115,14 @@ if particles and particles.global_position.distance_to(position) <= radius:
 
 func stop_all_vfx() -> void:
     for pool in _particle_pools.values():
-    for particles in pool:
-        particles.emitting = false
+        for particles in pool:
+            particles.emitting = false
 _active_effects.clear()
 
 func set_vfx_enabled(enabled: bool) -> void:
     for pool in _particle_pools.values():
-    for particles in pool:
-        particles.process_material = particles.process_material if enabled else null
+        for particles in pool:
+            particles.process_material = particles.process_material if enabled else null
 
 # Specific VFX helpers
 func play_mining_dust(position: Vector3, intensity: float = 1.0) -> void:
@@ -154,7 +154,7 @@ func play_conveyor_dust(position: Vector3) -> void:
 func _get_rarity_color(rarity: String) -> Color:
     match rarity:
         "common":
-    return Color.GRAY
+        return Color.GRAY
 "uncommon":
     return Color.GREEN
 "rare":
@@ -170,8 +170,8 @@ func get_active_effect_count() -> int:
     var count = 0
 for pool in _particle_pools.values():
     for particles in pool:
-    if particles.emitting:
-        count += 1
+        if particles.emitting:
+            count += 1
 return count
 
 func cleanup_finished_effects() -> void:

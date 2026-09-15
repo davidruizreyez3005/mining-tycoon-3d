@@ -206,8 +206,8 @@ for s in all_screens:
 # Show requested screen
 match screen:
     UIScreen.HUD:
-    if has_node("$HUD"):
-        $HUD.visible = true
+        if has_node("$HUD"):
+            $HUD.visible = true
 UIScreen.UPGRADES:
     if upgrades_screen:
         upgrades_screen.visible = true

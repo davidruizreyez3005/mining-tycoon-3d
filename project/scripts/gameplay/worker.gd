@@ -73,7 +73,7 @@ stamina_changed.emit(stamina)
 func _update_state_machine(delta: float) -> void:
     match state:
         WorkerState.IDLE:
-    _handle_idle_state(delta)
+        _handle_idle_state(delta)
 WorkerState.MOVING_TO_TASK:
     _handle_moving_state(delta)
 WorkerState.WORKING:

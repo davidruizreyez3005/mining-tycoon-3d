@@ -40,7 +40,7 @@ func get_description() -> String:
 func get_rarity_color() -> Color:
     match tier:
         1:
-    return Color.GRAY
+        return Color.GRAY
 2:
     return Color.GREEN
 3:

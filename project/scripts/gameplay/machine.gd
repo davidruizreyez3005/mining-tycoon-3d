@@ -106,7 +106,7 @@ _perform_operation()
 func _perform_operation() -> void:
     match machine_type:
         MachineType.EXTRACTOR:
-    _extract_resource()
+        _extract_resource()
 MachineType.PROCESSOR:
     _process_resource()
 MachineType.CONVEYOR:

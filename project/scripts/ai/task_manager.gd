@@ -183,8 +183,8 @@ return result
 
 func cancel_all_tasks_for_worker(worker_id: String) -> void:
     for task in _tasks.values():
-    if task["assigned_worker"] == worker_id and task["state"] in [TaskState.PENDING, TaskState.ASSIGNED, TaskState.IN_PROGRESS]:
-        task["state"] = TaskState.CANCELLED
+        if task["assigned_worker"] == worker_id and task["state"] in [TaskState.PENDING, TaskState.ASSIGNED, TaskState.IN_PROGRESS]:
+            task["state"] = TaskState.CANCELLED
 task["assigned_worker"] = null
 _task_queue.erase(task["id"])
 
@@ -209,7 +209,7 @@ func get_stats() -> Dictionary:
 for task in _tasks.values():
     match task["state"]:
         TaskState.PENDING:
-    stats["pending"] += 1
+        stats["pending"] += 1
 TaskState.ASSIGNED:
     stats["assigned"] += 1
 TaskState.IN_PROGRESS:

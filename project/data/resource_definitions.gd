@@ -45,7 +45,7 @@ func requires_processing() -> bool:
 func get_rarity_color() -> Color:
     match rarity:
         "common":
-    return Color.GRAY
+        return Color.GRAY
 "uncommon":
     return Color.GREEN
 "rare":

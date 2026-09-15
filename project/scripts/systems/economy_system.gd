@@ -38,8 +38,8 @@ _initialize_resources()
 
 func _initialize_resources() -> void:
     for resource_id in RESOURCE_DEFINITIONS.keys():
-    if not resources.has(resource_id):
-        resources[resource_id] = 0
+        if not resources.has(resource_id):
+            resources[resource_id] = 0
 
 func get_resource(resource_id: String) -> int:
     return resources.get(resource_id, 0)
