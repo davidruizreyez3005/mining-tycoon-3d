@@ -1,0 +1,66 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Mining Tycoon 3D"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.2", "Forward Plus")
+config/icon="res://icon.svg"
+
+[application/config]
+
+version/major=1
+version/minor=0
+version/patch=0
+version/build=0
+version/status="dev"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/size/resizable=true
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[input_maps]
+
+ui_touch_interaction=InputMapActionEvent(New, touch)
+ui_pan_camera=InputMapActionEvent(New, mouse_motion)
+ui_zoom=InputMapActionEvent(New, mouse_wheel)
+ui_select=InputMapActionEvent(New, left_click)
+ui_cancel=InputMapActionEvent(New, ui_cancel)
+
+[layer_names]
+
+3d_physics/layer_1="World"
+3d_physics/layer_2="Player"
+3d_physics/layer_3="Resources"
+3d_physics/layer_4="Machinery"
+3d_physics/layer_5="Workers"
+3d_physics/layer_6="Projectiles"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
+textures/vram_compression/basis_universal/ktx2_software_encoders/etc2_rgba8=true
+lighting/directional_shadows/atlas_resolution=2048
+
+[physics]
+
+common/physics_ticks_per_second=60
+3d/default_gravity=9.8
+
+[editor_plugins]
+
+enabled=PackedStringArray()

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scene uid="uid://main_scene_uid" type="PackedScene" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://godotengine.org/schema PackedScene.xsd">
+	<node name="Main" type="Node3D">
+		<node name="GameManager" type="Node" instance="res://scripts/core/game_manager.gd">
+		</node>
+		<node name="InputSystem" type="Node" instance="res://scripts/systems/input_system.gd">
+		</node>
+		<node name="CameraRig" type="Node3D">
+			<node name="Camera3D" type="Camera3D">
+				<transform property="position">
+					<vector3 x="0" y="15" z="-20" />
+				</transform>
+				<property name="fov" type="float"> 60 </property>
+				<property name="current" type="bool"> true </property>
+			</node>
+		</node>
+		<node name="World" type="Node3D">
+			<node name="Surface" type="Node3D">
+			</node>
+			<node name="Underground" type="Node3D">
+			</node>
+			<node name="Machines" type="Node3D">
+			</node>
+			<node name="Workers" type="Node3D">
+			</node>
+			<node name="Resources" type="Node3D">
+			</node>
+		</node>
+		<node name="UILayer" type="CanvasLayer">
+			<property name="layer" type="int"> 10 </property>
+		</node>
+		<node name="AudioManager" type="Node">
+		</node>
+		<node name="VFXManager" type="Node3D">
+		</node>
+	</node>
+</scene>

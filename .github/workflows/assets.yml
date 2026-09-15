@@ -1,0 +1,112 @@
+name: Generate and Validate 3D Assets
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'assets/**'
+      - '.github/workflows/assets.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'assets/**'
+  workflow_dispatch:
+
+jobs:
+  generate-assets:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Blender
+        run: |
+          echo "Installing Blender 4.x..."
+          # Download Blender 4.0 LTS
+          wget -q https://download.blender.org/release/Blender4.0/blender-4.0.2-linux-x64.tar.xz
+          tar -xf blender-4.0.2-linux-x64.tar.xz
+          sudo mv blender-4.0.2-linux-x64 /opt/blender
+          sudo ln -s /opt/blender/blender /usr/local/bin/blender
+          blender --version
+          echo "Blender installed successfully"
+      
+      - name: Install glTF exporter dependencies
+        run: |
+          # Blender 4.x includes glTF exporter by default
+          echo "glTF exporter available in Blender 4.x"
+      
+      - name: Create output directories
+        run: |
+          mkdir -p assets/models
+          mkdir -p assets/manifests
+          mkdir -p assets/collisions
+          mkdir -p assets/previews
+      
+      - name: Generate 3D assets with Blender
+        run: |
+          echo "=== Generating 3D Assets ==="
+          
+          # Run asset generation script headlessly
+          blender --background --python assets/scripts/generate_assets.py
+          
+          echo "Asset generation complete"
+      
+      - name: List generated assets
+        run: |
+          echo "Generated assets:"
+          ls -la assets/models/ || echo "No models directory"
+          ls -la assets/manifests/ || echo "No manifests directory"
+      
+      - name: Validate generated assets
+        run: |
+          echo "=== Validating Assets ==="
+          python3 assets/scripts/validate_assets.py
+          
+          # Check validation report
+          if [ -f "assets/manifests/validation_report.json" ]; then
+            echo "Validation report generated"
+          fi
+      
+      - name: Upload generated models
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-3d-models
+          path: assets/models/*.glb
+          retention-days: 14
+      
+      - name: Upload asset manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: asset-manifests
+          path: |
+            assets/manifests/*.json
+          retention-days: 14
+      
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: asset-validation-report
+          path: assets/manifests/validation_report.json
+          retention-days: 14
+
+      - name: Generate asset summary
+        run: |
+          echo "=== Asset Generation Summary ==="
+          echo "Date: $(date -u)"
+          echo "Commit: ${GITHUB_SHA}"
+          echo ""
+          if [ -f "assets/manifests/asset_manifest.json" ]; then
+            echo "Asset Manifest:"
+            python3 -c "import json; d=json.load(open('assets/manifests/asset_manifest.json')); print('  Version:', d['version']); print('  Total Assets:', d['summary']['total_assets']); print('  Total Triangles:', d['summary']['total_triangles']); print('  Generated:', d['generated_at'])"
+          fi
+          if [ -f "assets/manifests/validation_report.json" ]; then
+            echo ""
+            echo "Validation Results:"
+            python3 -c "import json; d=json.load(open('assets/manifests/validation_report.json')); s=d['summary']; status='PASS' if s['failed']==0 else 'FAIL'; print('  Status:', status); print('  Passed:', s['passed']); print('  Failed:', s['failed']); print('  Errors:', s['total_errors']); print('  Warnings:', s['total_warnings'])"
+          fi
