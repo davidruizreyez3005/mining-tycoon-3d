@@ -7,7 +7,7 @@ class_name ResourceCatalog
 var _resources: Dictionary = {}
 
 func _init() -> void:
-_initialize_default_resources()
+	_initialize_default_resources()
 
 func _initialize_default_resources() -> void:
 	# Create default resource definitions programmatically
