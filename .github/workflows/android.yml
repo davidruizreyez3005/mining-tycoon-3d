@@ -87,10 +87,21 @@ jobs:
           echo "Running Godot export..."
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-          export ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
-          export ANDROID_KEYSTORE_PASS=android
-          export ANDROID_KEY_ALIAS=androiddebugkey
-          export ANDROID_KEY_PASS=android
+          
+          # Create Godot editor settings directory and configure keystore
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.tres <<EOF
+          [gd_resource type="EditorSettings" load_steps=2 format=3]
+          
+          [resource]
+          android/debug_keystore_file = "/home/runner/.android/debug.keystore"
+          android/debug_keystore_user = "androiddebugkey"
+          android/debug_keystore_password = "android"
+          EOF
+          
+          echo "Editor settings created:"
+          cat ~/.config/godot/editor_settings-4.tres
+          
           godot --headless --path . --export-debug "Android" build/MiningTycoon.apk 2>&1
           echo "Export completed"
           ls -lh build/ || true
