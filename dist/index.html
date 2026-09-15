@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>3D Miner Mania - Mining Tycoon</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}html,body{touch-action:none;-webkit-user-select:none;user-select:none;background:#1a1a2e;width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;overflow:hidden}#game-container{width:100%;height:100%;position:relative}#canvas-container{width:100%;height:100%}canvas{width:100%;height:100%;display:block}#loading-screen{z-index:1000;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);flex-direction:column;justify-content:center;align-items:center;width:100%;height:100%;display:flex;position:absolute;top:0;left:0}#loading-screen.hidden{opacity:0;pointer-events:none;transition:opacity .5s}.loading-title{color:#f4a261;text-shadow:0 2px 4px #00000080;margin-bottom:1rem;font-size:2rem}.loading-bar{background:#ffffff1a;border-radius:4px;width:200px;height:8px;overflow:hidden}.loading-progress{background:linear-gradient(90deg,#f4a261,#e76f51);width:0%;height:100%;transition:width .3s}.loading-text{color:#888;margin-top:.5rem;font-size:.9rem}#hud{pointer-events:none;z-index:100;width:100%;height:100%;position:absolute;top:0;left:0}.hud-panel{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);pointer-events:auto;background:#0009;border-radius:8px;padding:8px 12px;position:absolute}#top-bar{top:env(safe-area-inset-top,10px);justify-content:space-between;align-items:center;display:flex;left:10px;right:10px}.resource-display{color:#fff;font-size:1.1rem;font-weight:700}.money{color:#4ade80}#depth-display{color:#f4a261}#action-buttons{bottom:calc(env(safe-area-inset-bottom,10px) + 20px);pointer-events:auto;flex-direction:column;gap:10px;display:flex;position:absolute;right:10px}.action-btn{color:#fff;cursor:pointer;background:linear-gradient(135deg,#f4a261,#e76f51);border:none;border-radius:50%;width:60px;height:60px;font-size:1.5rem;transition:transform .1s,box-shadow .1s;box-shadow:0 4px 8px #0000004d}.action-btn:active{transform:scale(.95);box-shadow:0 2px 4px #0000004d}#mine-btn{width:80px;height:80px;font-size:2rem}#bottom-panel{bottom:env(safe-area-inset-bottom,10px);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);pointer-events:auto;background:#0009;border-radius:8px;padding:10px;position:absolute;left:10px;right:80px}.stat-row{color:#fff;justify-content:space-between;margin-bottom:4px;font-size:.9rem;display:flex}.stat-label{color:#aaa}.stat-value{color:#fff;font-weight:700}#notification-area{z-index:200;position:absolute;top:60px;left:50%;transform:translate(-50%)}.notification{color:#fff;background:#000c;border-radius:20px;margin-bottom:8px;padding:10px 20px;animation:.3s ease-out slideIn}@keyframes slideIn{0%{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}</style>
+  <script type="module" crossorigin src="./assets/index-Dj2B8veG.js"></script>
+</head>
+<body>
+  <div id="game-container">
+    <div id="loading-screen">
+      <h1 class="loading-title">⛏️ 3D Miner Mania</h1>
+      <div class="loading-bar">
+        <div class="loading-progress" id="loading-progress"></div>
+      </div>
+      <p class="loading-text" id="loading-text">Loading...</p>
+    </div>
+    
+    <div id="canvas-container"></div>
+    
+    <div id="hud" style="display: none;">
+      <div id="top-bar" class="hud-panel">
+        <div class="resource-display money" id="money-display">$100</div>
+        <div class="resource-display" id="depth-display">Depth: 0m</div>
+      </div>
+      
+      <div id="notification-area"></div>
+      
+      <div id="bottom-panel" class="hud-panel">
+        <div class="stat-row">
+          <span class="stat-label">Storage:</span>
+          <span class="stat-value" id="storage-display">0/100</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Production:</span>
+          <span class="stat-value" id="production-display">0/min</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Workers:</span>
+          <span class="stat-value" id="workers-display">0</span>
+        </div>
+      </div>
+      
+      <div id="action-buttons">
+        <button class="action-btn" id="mine-btn" title="Mine">⛏️</button>
+        <button class="action-btn" id="upgrade-btn" title="Upgrades">⬆️</button>
+        <button class="action-btn" id="pause-btn" title="Pause">⏸️</button>
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>
