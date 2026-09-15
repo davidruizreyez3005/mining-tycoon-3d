@@ -1,4 +1,4 @@
-extends CanvasLayer
+extends Node
 class_name UIManager
 
 ## Main UI controller - manages all UI screens and HUD elements
@@ -28,6 +28,9 @@ enum UIScreen {
 
 var current_screen: UIScreen = UIScreen.HUD
 var is_ui_active: bool = true
+
+# Reference to GameState enum via GameManager
+var GameStateEnum: Script = load("res://scripts/core/game_state.gd")
 
 # HUD elements
 @onready var cash_label: Label = $HUD/CashLabel if $HUD else null
@@ -176,17 +179,18 @@ func _calculate_production_rate() -> int:
     
     return rate
 
-func _on_state_changed(from_state: GameState.State, to_state: GameState.State) -> void:
+func _on_state_changed(from_state, to_state) -> void:
+    # Use GameState.State enum values directly
     match to_state:
-        GameState.State.PAUSED:
+        5:  # PAUSED
             _show_screen(UIScreen.PAUSE_MENU)
-        GameState.State.PLAYING:
+        3:  # PLAYING
             _show_screen(UIScreen.HUD)
-        GameState.State.UPGRADING:
+        6:  # UPGRADING
             _show_screen(UIScreen.UPGRADES)
-        GameState.State.OFFLINE_REWARD:
+        8:  # OFFLINE_REWARD
             _show_screen(UIScreen.OFFLINE_REWARD)
-        GameState.State.PRESTIGE:
+        9:  # PRESTIGE
             _show_screen(UIScreen.PRESTIGE)
 
 func _show_screen(screen: UIScreen) -> void:
@@ -263,7 +267,7 @@ func _populate_quests_screen() -> void:
 func _on_pause_pressed() -> void:
     pause_toggled.emit(true)
     if game_manager and game_manager.game_state.is_pauseable():
-        game_manager.game_state.transition_to(GameState.State.PAUSED)
+        game_manager.game_state.transition_to(5)  # GameState.State.PAUSED
 
 func _on_speed_pressed() -> void:
     var speeds = [1.0, 2.0, 3.0]

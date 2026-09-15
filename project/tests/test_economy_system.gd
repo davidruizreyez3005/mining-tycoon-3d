@@ -1,5 +1,5 @@
 extends RefCounted
-class_name TestEconomySystem
+
 
 ## Automated tests for EconomySystem
 ## Validates production, selling, offline progression, and economy balance
