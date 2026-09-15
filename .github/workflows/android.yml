@@ -37,6 +37,8 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          log-verbosity: verbose
 
       - name: Create Debug Keystore
         run: |
