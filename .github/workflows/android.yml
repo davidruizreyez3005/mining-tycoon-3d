@@ -44,17 +44,21 @@ jobs:
       - name: Setup Android SDK
         run: |
           export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
           mkdir -p $ANDROID_HOME/cmdline-tools
           cd $ANDROID_HOME/cmdline-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
           unzip -q cmdline-tools.zip
           mv cmdline-tools latest
           rm cmdline-tools.zip
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "cmdline-tools;latest" "ndk;25.2.9519653" "cmake;3.22.1"
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
           echo "PATH=$PATH" >> $GITHUB_ENV
+          ls -la $ANDROID_HOME/
+          ls -la $ANDROID_HOME/build-tools/
 
       - name: Create Debug Keystore
         run: |
@@ -64,13 +68,20 @@ jobs:
 
       - name: Create Godot Editor Settings
         run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
           mkdir -p ~/.config/godot
           echo '[gd_resource type="EditorSettings" format=3]' > ~/.config/godot/editor_settings-4.tres
           echo '' >> ~/.config/godot/editor_settings-4.tres
           echo '[resource]' >> ~/.config/godot/editor_settings-4.tres
-          echo 'android/keystore/debug_keystore = "/home/runner/.android/debug.keystore"' >> ~/.config/godot/editor_settings-4.tres
-          echo 'android/keystore/debug_keystore_user = "androiddebugkey"' >> ~/.config/godot/editor_settings-4.tres
-          echo 'android/keystore/debug_keystore_password = "android"' >> ~/.config/godot/editor_settings-4.tres
+          echo "android/sdk/adb = \"$ANDROID_HOME/platform-tools/adb\"" >> ~/.config/godot/editor_settings-4.tres
+          echo "android/sdk/apksigner = \"$ANDROID_HOME/build-tools/34.0.0/apksigner\"" >> ~/.config/godot/editor_settings-4.tres
+          echo 'android/sdk/jarsigner = "/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64/bin/jarsigner"' >> ~/.config/godot/editor_settings-4.tres
+          echo 'android/sdk/keystore_debug = "/home/runner/.android/debug.keystore"' >> ~/.config/godot/editor_settings-4.tres
+          echo 'android/sdk/keystore_debug_user = "androiddebugkey"' >> ~/.config/godot/editor_settings-4.tres
+          echo 'android/sdk/keystore_debug_password = "android"' >> ~/.config/godot/editor_settings-4.tres
+          echo "android/sdk/ndk = \"$ANDROID_HOME/ndk/25.2.9519653\"" >> ~/.config/godot/editor_settings-4.tres
+          echo 'android/sdk/java_path = "/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64/bin/java"' >> ~/.config/godot/editor_settings-4.tres
           cat ~/.config/godot/editor_settings-4.tres
 
       - name: Verify project structure
@@ -80,7 +91,7 @@ jobs:
           ls -la project/ || true
           cat project/project.godot | head -20
           cat project/scenes/Main.tscn | head -20
-          cat project/export_presets.cfg | head -20
+          cat project/export_presets.cfg | head -30
 
       - name: Export APK with Godot
         id: export
@@ -89,12 +100,12 @@ jobs:
           cd project
           echo "Running Godot export..."
           export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
-          export GODOT_ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
-          export GODOT_ANDROID_KEYSTORE_USER=androiddebugkey
-          export GODOT_ANDROID_KEYSTORE_PASSWORD=android
-          echo "Keystore: $GODOT_ANDROID_KEYSTORE_PATH"
-          ls -la /home/runner/.android/debug.keystore || true
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0
+          echo "Environment:"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls -la $ANDROID_HOME/build-tools/34.0.0/ || true
           godot --headless --path . --export-debug "Android" build/MiningTycoon.apk 2>&1
           echo "Export completed"
           ls -lh build/ || true
