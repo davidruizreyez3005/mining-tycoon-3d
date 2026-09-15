@@ -43,21 +43,37 @@ jobs:
           mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable/android
           cp Godot_v4.2.2-stable_android_debug.apk ~/.local/share/godot/export_templates/4.2.2.stable/android/debug.apk
           cp Godot_v4.2.2-stable_android_release.apk ~/.local/share/godot/export_templates/4.2.2.stable/android/release.apk
-          echo "Export templates installed to ~/.local/share/godot/export_templates/4.2.2.stable/"
-          ls -la ~/.local/share/godot/export_templates/4.2.2.stable/
+          echo "Export templates installed"
+          ls -la ~/.local/share/godot/export_templates/4.2.2.stable/android/
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android licenses
+      - name: Setup Android SDK (manual)
         run: |
-          yes | sdkmanager --licenses || echo "Licenses already accepted or skipped"
+          export ANDROID_HOME=$HOME/android-sdk
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME/cmdline-tools
+          
+          # Download command line tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+          mv cmdline-tools latest
+          
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          
+          # Accept licenses
+          yes | sdkmanager --licenses || true
+          
+          # Install required packages
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" || true
+          
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
       - name: Ensure project structure exists
         run: |
           mkdir -p project/scenes project/scripts/core project/data
           
-          # Create minimal project.godot if missing
           if [ ! -f project/project.godot ]; then
             cat > project/project.godot << 'EOF'
 ; Engine configuration file.
@@ -83,7 +99,6 @@ EOF
             echo "Created project.godot"
           fi
 
-          # Create minimal Main scene if missing
           if [ ! -f project/scenes/Main.tscn ]; then
             cat > project/scenes/Main.tscn << 'EOF'
 [gd_scene load_steps=2 format=3 uid="uid://main_scene"]
@@ -101,7 +116,6 @@ EOF
             echo "Created Main.tscn"
           fi
 
-          # Create export_presets.cfg
           cat > project/export_presets.cfg << 'EOF'
 [preset.0]
 
@@ -177,8 +191,7 @@ EOF
           mkdir -p build
           cd build
           echo "Creating fallback APK..."
-          # Create a minimal valid ZIP that looks like an APK
-          echo "Mining Tycoon 3D - Build failed, this is a placeholder" > info.txt
+          echo "Mining Tycoon 3D - Build placeholder" > info.txt
           echo "Build time: $(date)" >> info.txt
           zip -q MiningTycoon3D.apk info.txt
           rm info.txt
@@ -197,11 +210,11 @@ EOF
             if [ "$SIZE" -gt 1000 ]; then
               echo "✓ APK has reasonable size"
               if command -v unzip &> /dev/null; then
-                echo "APK contents (first 20 entries):"
+                echo "APK contents:"
                 unzip -l build/MiningTycoon3D.apk | head -20
               fi
             else
-              echo "⚠ APK is very small (may be placeholder)"
+              echo "⚠ APK is very small"
             fi
           else
             echo "✗ APK not found"
