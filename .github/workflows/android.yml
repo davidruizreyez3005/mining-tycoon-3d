@@ -1,97 +1,45 @@
-name: Build Android APK
+name: Android Build
 
 on:
   push:
-    branches: [main, master]
-    tags: ['v*']
-  pull_request:
-    branches: [main, master]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build-android:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+  build-apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v5
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0 cmdline-tools;latest'
+
+      - name: Accept Android licenses
+        run: |
+          yes | sdkmanager --licenses || true
+          echo "Licenses accepted"
 
       - name: Download Godot 4.2.2
         run: |
-          echo "Downloading Godot 4.2.2..."
-          cd /tmp
           wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_linux.x86_64.zip
           unzip -q Godot_v4.2.2-stable_linux.x86_64.zip
           chmod +x Godot_v4.2.2-stable_linux.x86_64
           mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
           godot --version
 
-      - name: Download Android Export Templates
+      - name: Create Android Export Preset
         run: |
-          mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable
-          cd /tmp
-          wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_android_debug.apk
-          wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_android_release.apk
-          mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable/android
-          cp Godot_v4.2.2-stable_android_debug.apk ~/.local/share/godot/export_templates/4.2.2.stable/android/debug.apk
-          cp Godot_v4.2.2-stable_android_release.apk ~/.local/share/godot/export_templates/4.2.2.stable/android/release.apk
-          echo "✓ Export templates installed"
-          ls -la ~/.local/share/godot/export_templates/4.2.2.stable/android/
-
-      - name: Ensure project structure exists
-        run: |
-          mkdir -p project/scenes project/scripts/core project/data build
-          
-          if [ ! -f project/project.godot ]; then
-            cat > project/project.godot << 'EOF'
-; Engine configuration file.
-config_version=5
-
-[application]
-config/name="Mining Tycoon 3D"
-run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.2", "Mobile")
-config/icon="res://icon.svg"
-
-[rendering]
-renderer/rendering_method="mobile"
-
-[platform.android]
-permissions/internet=true
-screen/orientation=1
-version/code=1
-version/name="1.0.0"
-package/unique_name="com.miningtycoon.game"
-package/name="Mining Tycoon 3D"
-EOF
-            echo "✓ Created project.godot"
-          fi
-
-          if [ ! -f project/scenes/Main.tscn ]; then
-            cat > project/scenes/Main.tscn << 'EOF'
-[gd_scene load_steps=2 format=3 uid="uid://main_scene"]
-
-[node name="Main" type="Node3D"]
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 5, 0)
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.766044, 0.642788, 0, -0.321394, 0.383022, -0.866025, 0.55667, -0.663414, -0.5, 0, 10, 0)
-EOF
-            echo "✓ Created Main.tscn"
-          fi
-
           cat > project/export_presets.cfg << 'EOF'
 [preset.0]
 
@@ -103,7 +51,7 @@ custom_features=""
 export_filter="all_resources"
 include_filter=""
 exclude_filter=""
-export_path="build/MiningTycoon3D.apk"
+export_path="build/MiningTycoon.apk"
 encryption_include_filters=""
 encryption_exclude_filters=""
 encrypt_pck=false
@@ -113,115 +61,162 @@ encrypt_directory=false
 
 custom_template/debug=""
 custom_template/release=""
+architectures/armeabi-v7a=false
+architectures/arm64-v8a=true
+architectures/x86=false
+architectures/x86_64=false
 version/code=1
 version/name="1.0.0"
 package/unique_name="com.miningtycoon.game"
 package/name="Mining Tycoon 3D"
 package/signed=true
+package/app_category=0
+package/retain_data_on_uninstall=false
+package/exclude_from_recents=false
+launcher_icons/main_192x192=""
+launcher_icons/adaptive_foreground_432x432=""
+launcher_icons/adaptive_background_432x432=""
+graphics/opengl_debug=false
+xr_features/xr_mode=0
 screen/immersive_mode=true
-screen/orientation=1
 screen/support_small=true
 screen/support_normal=true
 screen/support_large=true
 screen/support_xlarge=true
-graphics/opengl_debug=false
-xr_features/xr_mode=0
-build/gradle_generate_enabled=false
-build/remove_unsupported_libraries=true
+user_data_backup/allow=false
+command_line/extra_args=""
+apk_expansion/enable=false
+apk_expansion/SALT=""
+apk_expansion/public_key=""
 permissions/custom_permissions=PackedStringArray()
-permissions/access_network_state=false
+permissions/access_network_state=true
 permissions/internet=true
+permissions/write_external_storage=false
+permissions/read_external_storage=false
 EOF
-          echo "✓ Created export_presets.cfg"
+          echo "Export preset created"
 
-      - name: Validate project structure
+      - name: Create minimal main scene
+        run: |
+          mkdir -p project/scenes
+          cat > project/scenes/Main.tscn << 'EOF'
+[gd_scene load_steps=2 format=3 uid="uid://main123"]
+
+[ext_resource type="Script" path="res://scripts/core/game_manager.gd" id="1_main"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
+EOF
+          echo "Main scene created"
+
+      - name: Validate Project Structure
         run: |
           echo "=== Project Structure ==="
+          find project -type f -name "*.gd" | head -20
+          find project -type f -name "*.tscn" | head -10
           ls -la project/
-          test -f project/project.godot && echo "✓ project.godot exists"
-          test -f project/export_presets.cfg && echo "✓ export_presets.cfg exists"
-          test -f project/scenes/Main.tscn && echo "✓ Main.tscn exists"
+          ls -la project/scripts/ || echo "scripts dir missing"
+          ls -la project/data/ || echo "data dir missing"
 
-      - name: Export Android APK
-        id: export
+      - name: Run Godot Headless Validation
         run: |
           cd project
-          echo "Starting Godot export..."
-          godot --headless --path . --export-debug "Android" ../build/MiningTycoon3D.apk 2>&1 | tee ../export.log
-          export_code=$?
-          echo "Export exit code: $export_code"
-          
-          if [ $export_code -eq 0 ] && [ -f ../build/MiningTycoon3D.apk ] && [ -s ../build/MiningTycoon3D.apk ]; then
-            echo "✓ Export successful"
-            ls -lh ../build/
-            echo "success=true" >> $GITHUB_OUTPUT
-          else
-            echo "⚠ Export failed or produced empty file"
-            ls -la ../build/ || echo "build directory doesn't exist"
-            echo "success=false" >> $GITHUB_OUTPUT
-          fi
+          godot --headless --quit-after 100 --path . 2>&1 | head -50 || true
+          echo "Validation complete"
 
-      - name: Create fallback APK if export failed
-        if: steps.export.outputs.success == 'false'
+      - name: Build APK with Godot
         run: |
-          mkdir -p build
-          cd build
-          echo "Creating fallback APK..."
-          echo "Mining Tycoon 3D - Build info" > info.txt
-          echo "Build time: $(date)" >> info.txt
-          echo "Note: Full Godot export requires complete project setup" >> info.txt
-          zip -q MiningTycoon3D.apk info.txt
-          rm info.txt
-          echo "✓ Fallback APK created"
-          ls -lh MiningTycoon3D.apk
+          mkdir -p project/build
+          cd project
+          echo "Starting Godot Android export..."
+          godot --headless --path . --export-debug "Android" build/MiningTycoon.apk 2>&1 | tee export.log || {
+            echo "Export command failed, checking logs..."
+            cat export.log
+            exit 1
+          }
+          
+          echo "=== Export Log ==="
+          cat export.log
+          
+          if [ -f build/MiningTycoon.apk ]; then
+            ls -lh build/MiningTycoon.apk
+            echo "APK created successfully!"
+          else
+            echo "APK not found after export"
+            find . -name "*.apk" -ls
+            exit 1
+          fi
 
       - name: Verify APK
         run: |
-          echo "=== APK Verification ==="
-          if [ -f build/MiningTycoon3D.apk ]; then
-            echo "✓ APK exists"
-            SIZE=$(stat -c%s build/MiningTycoon3D.apk 2>/dev/null || stat -f%z build/MiningTycoon3D.apk 2>/dev/null || echo "0")
-            echo "APK size: $SIZE bytes"
-            ls -lh build/MiningTycoon3D.apk
-            
-            if [ "$SIZE" -gt 1000 ]; then
-              echo "✓ APK has reasonable size"
-              if command -v unzip &> /dev/null; then
-                echo "APK contents:"
-                unzip -l build/MiningTycoon3D.apk | head -20
-              fi
-            else
-              echo "⚠ APK is very small (placeholder)"
-            fi
-          else
-            echo "✗ APK not found"
+          cd project
+          APK_PATH="build/MiningTycoon.apk"
+          
+          if [ ! -f "$APK_PATH" ]; then
+            echo "ERROR: APK file not found!"
             exit 1
           fi
+          
+          SIZE=$(stat -c%s "$APK_PATH")
+          if [ "$SIZE" -lt 1000 ]; then
+            echo "ERROR: APK file is too small ($SIZE bytes)"
+            exit 1
+          fi
+          
+          echo "APK Size: $SIZE bytes"
+          
+          # Check APK structure (ZIP format)
+          if ! unzip -l "$APK_PATH" > /dev/null 2>&1; then
+            echo "ERROR: APK is not a valid ZIP file"
+            exit 1
+          fi
+          
+          echo "APK Contents:"
+          unzip -l "$APK_PATH" | head -30
+          
+          # Check for essential files
+          if ! unzip -l "$APK_PATH" | grep -q "classes.dex"; then
+            echo "WARNING: classes.dex not found in APK"
+          fi
+          
+          if ! unzip -l "$APK_PATH" | grep -q "\.pck"; then
+            echo "WARNING: .pck file not found in APK"
+          fi
+          
+          echo "APK verification PASSED"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mining-tycoon-apk
-          path: build/MiningTycoon3D.apk
+          name: MiningTycoon-APK
+          path: project/build/MiningTycoon.apk
           retention-days: 30
+          if-no-files-found: error
+
+      - name: Create GitHub Release (if tagged)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: project/build/MiningTycoon.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Build Logs
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: build-logs
           path: |
-            export.log
             project/export.log
+            project/build/
           retention-days: 7
-          if-no-files-found: ignore
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: build/MiningTycoon3D.apk
-          generate_release_notes: true
-          fail_on_unmatched_files: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
