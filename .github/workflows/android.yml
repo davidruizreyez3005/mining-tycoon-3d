@@ -32,7 +32,8 @@ jobs:
         run: |
           mkdir -p ~/.local/share/godot/export_templates
           wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
-          unzip -q Godot_v4.2.2-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.2.2.stable
+          unzip -q Godot_v4.2.2-stable_export_templates.tpz -d /tmp/godot_templates
+          mv /tmp/godot_templates/templates/* ~/.local/share/godot/export_templates/4.2.2.stable/
           ls -la ~/.local/share/godot/export_templates/4.2.2.stable/
 
       - name: Setup Android SDK manually
@@ -50,11 +51,39 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "PATH=$PATH" >> $GITHUB_ENV
 
-      - name: Create Debug Keystore
+      - name: Create Debug Keystore and Configure Godot
         run: |
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" 2>&1 || echo "Keystore created or already exists"
           ls -la ~/.android/debug.keystore || true
+          
+          # Configure Godot to use the debug keystore
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.tres <<EOF
+[gd_resource type="EditorSettings" load_steps=2 format=3 uid="uid://editor_settings"]
+
+[ext_resource type="ConfigFile" path="export.cfg" id="1_export"]
+
+[resource]
+config_version=5
+
+[preset.0]
+
+name="Android"
+platform="Android"
+runnable=true
+
+[preset.0.options]
+
+package/unique_name="com.miningtycoon.game"
+package/name="Mining Tycoon 3D"
+package/signed=true
+keystore/release="/home/runner/.android/debug.keystore"
+keystore/release_user="androiddebugkey"
+keystore/release_password="android"
+
+EOF
+          echo "Godot editor settings configured"
 
       - name: Verify project structure
         run: |
