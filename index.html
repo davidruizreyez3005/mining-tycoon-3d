@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>3D Miner Mania - Mining Tycoon</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a1a2e;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    #game-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+    }
+    
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    
+    #loading-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    
+    .loading-title {
+      color: #f4a261;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .loading-bar {
+      width: 200px;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .loading-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #f4a261, #e76f51);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    
+    .loading-text {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    .hud-panel {
+      position: absolute;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      border-radius: 8px;
+      padding: 8px 12px;
+      pointer-events: auto;
+    }
+    
+    #top-bar {
+      top: env(safe-area-inset-top, 10px);
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .resource-display {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    
+    .money {
+      color: #4ade80;
+    }
+    
+    #depth-display {
+      color: #f4a261;
+    }
+    
+    #action-buttons {
+      position: absolute;
+      bottom: calc(env(safe-area-inset-bottom, 10px) + 20px);
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    
+    .action-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #f4a261, #e76f51);
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    
+    .action-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    #mine-btn {
+      width: 80px;
+      height: 80px;
+      font-size: 2rem;
+    }
+    
+    #bottom-panel {
+      position: absolute;
+      bottom: env(safe-area-inset-bottom, 10px);
+      left: 10px;
+      right: 80px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      border-radius: 8px;
+      padding: 10px;
+      pointer-events: auto;
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      color: #fff;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      color: #aaa;
+    }
+    
+    .stat-value {
+      color: #fff;
+      font-weight: bold;
+    }
+    
+    #notification-area {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+    }
+    
+    .notification {
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="loading-screen">
+      <h1 class="loading-title">⛏️ 3D Miner Mania</h1>
+      <div class="loading-bar">
+        <div class="loading-progress" id="loading-progress"></div>
+      </div>
+      <p class="loading-text" id="loading-text">Loading...</p>
+    </div>
+    
+    <div id="canvas-container"></div>
+    
+    <div id="hud" style="display: none;">
+      <div id="top-bar" class="hud-panel">
+        <div class="resource-display money" id="money-display">$100</div>
+        <div class="resource-display" id="depth-display">Depth: 0m</div>
+      </div>
+      
+      <div id="notification-area"></div>
+      
+      <div id="bottom-panel" class="hud-panel">
+        <div class="stat-row">
+          <span class="stat-label">Storage:</span>
+          <span class="stat-value" id="storage-display">0/100</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Production:</span>
+          <span class="stat-value" id="production-display">0/min</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Workers:</span>
+          <span class="stat-value" id="workers-display">0</span>
+        </div>
+      </div>
+      
+      <div id="action-buttons">
+        <button class="action-btn" id="mine-btn" title="Mine">⛏️</button>
+        <button class="action-btn" id="upgrade-btn" title="Upgrades">⬆️</button>
+        <button class="action-btn" id="pause-btn" title="Pause">⏸️</button>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
