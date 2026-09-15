@@ -9,7 +9,7 @@ jobs:
   build-apk:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -51,71 +51,14 @@ jobs:
 
       - name: Create export_presets.cfg
         run: |
-          cat > project/export_presets.cfg << 'EOF'
-[preset.0]
-
-name="Android"
-platform="Android"
-runnable=true
-dedicated_server=false
-custom_features=""
-export_filter="all_resources"
-include_filter=""
-exclude_filter=""
-export_path="build/MiningTycoon.apk"
-encryption_include_filters=""
-encryption_exclude_filters=""
-encrypt_pck=false
-encrypt_directory=false
-
-[preset.0.options]
-
-custom_template/debug=""
-custom_template/release=""
-debug/export_debug=true
-debug/external_apk_expansion_file=false
-architectures/armeabi-v7a=false
-architectures/arm64-v8a=true
-architectures/x86=false
-architectures/x86_64=false
-package/unique_name="com.miningtycoon.game"
-package/name="MiningTycoon3D"
-package/signed=true
-package/app_category=0
-package/retain_data_on_uninstall=false
-package/exclude_from_recents=false
-package/show_in_android_tv=false
-launcher_icons/main_192x192=""
-launcher_icons/adaptive_foreground_432x432=""
-launcher_icons/adaptive_background_432x432=""
-graphics/opengl_debug=false
-xr_features/xr_mode=0
-screen/immersive_mode=true
-screen/support_small=true
-screen/support_normal=true
-screen/support_large=true
-screen/support_xlarge=true
-user_data_backup/allow=false
-command_line/extra_args=""
-apk_expansion/enable=false
-apk_expansion/SALT=""
-apk_expansion/public_key=""
-permissions/access_network_state=true
-permissions/internet=true
-version/code=1
-version/name="1.0.0"
-EOF
+          printf '%s\n' '[preset.0]' '' 'name="Android"' 'platform="Android"' 'runnable=true' 'dedicated_server=false' 'custom_features=""' 'export_filter="all_resources"' 'include_filter=""' 'exclude_filter=""' 'export_path="build/MiningTycoon.apk"' 'encryption_include_filters=""' 'encryption_exclude_filters=""' 'encrypt_pck=false' 'encrypt_directory=false' '' '[preset.0.options]' '' 'custom_template/debug=""' 'custom_template/release=""' 'debug/export_debug=true' 'debug/external_apk_expansion_file=false' 'architectures/armeabi-v7a=false' 'architectures/arm64-v8a=true' 'architectures/x86=false' 'architectures/x86_64=false' 'package/unique_name="com.miningtycoon.game"' 'package/name="MiningTycoon3D"' 'package/signed=true' 'package/app_category=0' 'package/retain_data_on_uninstall=false' 'package/exclude_from_recents=false' 'package/show_in_android_tv=false' 'launcher_icons/main_192x192=""' 'launcher_icons/adaptive_foreground_432x432=""' 'launcher_icons/adaptive_background_432x432=""' 'graphics/opengl_debug=false' 'xr_features/xr_mode=0' 'screen/immersive_mode=true' 'screen/support_small=true' 'screen/support_normal=true' 'screen/support_large=true' 'screen/support_xlarge=true' 'user_data_backup/allow=false' 'command_line/extra_args=""' 'apk_expansion/enable=false' 'apk_expansion/SALT=""' 'apk_expansion/public_key=""' 'permissions/access_network_state=true' 'permissions/internet=true' 'version/code=1' 'version/name="1.0.0"' > project/export_presets.cfg
+          echo "Created export_presets.cfg:"
           cat project/export_presets.cfg
 
       - name: Create minimal project.godot if missing
         run: |
           if [ ! -f project/project.godot ]; then
-            echo '; Engine configuration file.' > project/project.godot
-            echo '[configuration]' >> project/project.godot
-            echo 'application/name="Mining Tycoon 3D"' >> project/project.godot
-            echo 'application/run/main_scene="res://scenes/Main.tscn"' >> project/project.godot
-            echo 'config/features=PackedStringArray("4.2", "Forward Plus")' >> project/project.godot
-            echo 'rendering/renderer/rendering_method="forward_plus"' >> project/project.godot
+            printf '%s\n' '; Engine configuration file.' '[configuration]' 'application/name="Mining Tycoon 3D"' 'application/run/main_scene="res://scenes/Main.tscn"' 'config/features=PackedStringArray("4.2", "Forward Plus")' 'rendering/renderer/rendering_method="forward_plus"' > project/project.godot
           fi
           cat project/project.godot
 
@@ -123,13 +66,7 @@ EOF
         run: |
           mkdir -p project/scenes
           if [ ! -f project/scenes/Main.tscn ]; then
-            echo '[gd_scene format=3 uid="uid://main"]' > project/scenes/Main.tscn
-            echo '[node name="Main" type="Node"]' >> project/scenes/Main.tscn
-            echo '[node name="WorldEnvironment" type="WorldEnvironment" parent="."]' >> project/scenes/Main.tscn
-            echo '[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]' >> project/scenes/Main.tscn
-            echo 'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)' >> project/scenes/Main.tscn
-            echo '[node name="Camera3D" type="Camera3D" parent="."]' >> project/scenes/Main.tscn
-            echo 'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)' >> project/scenes/Main.tscn
+            printf '%s\n' '[gd_scene format=3 uid="uid://main"]' '[node name="Main" type="Node"]' '[node name="WorldEnvironment" type="WorldEnvironment" parent="."]' '[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]' 'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)' '[node name="Camera3D" type="Camera3D" parent="."]' 'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)' > project/scenes/Main.tscn
           fi
           cat project/scenes/Main.tscn
 
