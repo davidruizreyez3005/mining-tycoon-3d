@@ -18,36 +18,36 @@ class_name UpgradeDefinition
 @export var is_permanent: bool = true  # false for temporary buffs
 
 func get_cost() -> int:
-return cost
+	return cost
 
 func get_effects() -> Dictionary:
-return effects.duplicate()
+	return effects.duplicate()
 
 func has_prerequisite(upgrade_id: String) -> bool:
-return upgrade_id in prerequisites
+	return upgrade_id in prerequisites
 
 func can_apply_to(target_type_check: String) -> bool:
-if target_type.is_empty():
-return true
+	if target_type.is_empty():
+	return true
 return target_type == target_type_check
 
 func get_display_name() -> String:
-return name if not name.is_empty() else id.capitalize()
+	return name if not name.is_empty() else id.capitalize()
 
 func get_description() -> String:
-return description
+	return description
 
 func get_rarity_color() -> Color:
-match tier:
-1:
-return Color.GRAY
+	match tier:
+	1:
+	return Color.GRAY
 2:
-return Color.GREEN
+	return Color.GREEN
 3:
-return Color.BLUE
+	return Color.BLUE
 4:
-return Color.PURPLE
+	return Color.PURPLE
 5:
-return Color.ORANGE
+	return Color.ORANGE
 _:
-return Color.WHITE
+	return Color.WHITE

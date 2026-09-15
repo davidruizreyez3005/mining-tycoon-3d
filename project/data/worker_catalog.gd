@@ -6,10 +6,10 @@ class_name WorkerCatalog
 var _workers: Dictionary = {}
 
 func _init() -> void:
-_initialize_default_workers()
+	_initialize_default_workers()
 
 func _initialize_default_workers() -> void:
-# Basic Worker - starter worker
+	# Basic Worker - starter worker
 var basic = WorkerDefinition.new()
 basic.id = "basic_miner"
 basic.name = "Miner"
@@ -33,7 +33,7 @@ basic.animations = {
 "repair": "repair"
 }
 _register_worker(basic)
-	
+
 # Skilled Miner - faster mining
 var skilled = WorkerDefinition.new()
 skilled.id = "skilled_miner"
@@ -51,7 +51,7 @@ skilled.required_unlock_depth = 10
 skilled.special_abilities = ["mining_speed"]
 skilled.animations = basic.animations
 _register_worker(skilled)
-	
+
 # Engineer - operates advanced machinery
 var engineer = WorkerDefinition.new()
 engineer.id = "engineer"
@@ -69,7 +69,7 @@ engineer.required_unlock_depth = 25
 engineer.special_abilities = ["machine_bonus", "repair_bonus"]
 engineer.animations = basic.animations
 _register_worker(engineer)
-	
+
 # Supervisor - boosts nearby workers
 var supervisor = WorkerDefinition.new()
 supervisor.id = "supervisor"
@@ -89,30 +89,30 @@ supervisor.animations = basic.animations
 _register_worker(supervisor)
 
 func _register_worker(worker: WorkerDefinition) -> void:
-_workers[worker.id] = worker
+	_workers[worker.id] = worker
 
 func get_worker(id: String) -> WorkerDefinition:
-return _workers.get(id)
+	return _workers.get(id)
 
 func get_all_workers() -> Array:
-return _workers.values()
+	return _workers.values()
 
 func get_workers_by_type(type: String) -> Array:
-var result = []
+	var result = []
 for worker in _workers.values():
-if worker.worker_type == type:
-result.append(worker)
+	if worker.worker_type == type:
+	result.append(worker)
 return result
 
 func get_available_at_depth(depth: int) -> Array:
-var result = []
+	var result = []
 for worker in _workers.values():
-if worker.can_work_at_depth(depth):
-result.append(worker)
+	if worker.can_work_at_depth(depth):
+	result.append(worker)
 return result
 
 func has_worker(id: String) -> bool:
-return _workers.has(id)
+	return _workers.has(id)
 
 func get_worker_count() -> int:
-return _workers.size()
+	return _workers.size()

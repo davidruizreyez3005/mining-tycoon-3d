@@ -6,11 +6,11 @@ class_name UpgradeCatalog
 var _upgrades: Dictionary = {}
 
 func _init() -> void:
-_initialize_default_upgrades()
+	_initialize_default_upgrades()
 
 func _initialize_default_upgrades() -> void:
-# === MACHINE UPGRADES ===
-	
+	# === MACHINE UPGRADES ===
+
 # Pickaxe upgrades (early game)
 var pickaxe_t2 = UpgradeDefinition.new()
 pickaxe_t2.id = "pickaxe_t2"
@@ -23,7 +23,7 @@ pickaxe_t2.target_type = "pickaxe"
 pickaxe_t2.effects = {"mining_speed": 1.25}
 pickaxe_t2.unlock_depth = 0
 _register_upgrade(pickaxe_t2)
-	
+
 var pickaxe_t3 = UpgradeDefinition.new()
 pickaxe_t3.id = "pickaxe_t3"
 pickaxe_t3.name = "Steel Pickaxe"
@@ -36,7 +36,7 @@ pickaxe_t3.target_type = "pickaxe"
 pickaxe_t3.effects = {"mining_speed": 1.5}
 pickaxe_t3.unlock_depth = 10
 _register_upgrade(pickaxe_t3)
-	
+
 # Drill upgrades
 var drill_t1 = UpgradeDefinition.new()
 drill_t1.id = "drill_t1"
@@ -49,7 +49,7 @@ drill_t1.target_type = "drill"
 drill_t1.effects = {"mining_speed": 2.0, "automation": true}
 drill_t1.unlock_depth = 5
 _register_upgrade(drill_t1)
-	
+
 var drill_t2 = UpgradeDefinition.new()
 drill_t2.id = "drill_t2"
 drill_t2.name = "Powered Drill"
@@ -62,7 +62,7 @@ drill_t2.target_type = "drill"
 drill_t2.effects = {"mining_speed": 3.0}
 drill_t2.unlock_depth = 20
 _register_upgrade(drill_t2)
-	
+
 # Conveyor upgrades
 var conveyor_t1 = UpgradeDefinition.new()
 conveyor_t1.id = "conveyor_t1"
@@ -75,7 +75,7 @@ conveyor_t1.target_type = "conveyor"
 conveyor_t1.effects = {"transport_speed": 1.0, "automation": true}
 conveyor_t1.unlock_depth = 8
 _register_upgrade(conveyor_t1)
-	
+
 var conveyor_t2 = UpgradeDefinition.new()
 conveyor_t2.id = "conveyor_t2"
 conveyor_t2.name = "Fast Conveyor"
@@ -88,7 +88,7 @@ conveyor_t2.target_type = "conveyor"
 conveyor_t2.effects = {"transport_speed": 2.0}
 conveyor_t2.unlock_depth = 25
 _register_upgrade(conveyor_t2)
-	
+
 # Crusher upgrades
 var crusher_t1 = UpgradeDefinition.new()
 crusher_t1.id = "crusher_t1"
@@ -101,7 +101,7 @@ crusher_t1.target_type = "crusher"
 crusher_t1.effects = {"processing_unlock": ["copper", "iron"]}
 crusher_t1.unlock_depth = 15
 _register_upgrade(crusher_t1)
-	
+
 var crusher_t2 = UpgradeDefinition.new()
 crusher_t2.id = "crusher_t2"
 crusher_t2.name = "Ore Crusher T2"
@@ -114,7 +114,7 @@ crusher_t2.target_type = "crusher"
 crusher_t2.effects = {"processing_unlock": ["silver", "gold"]}
 crusher_t2.unlock_depth = 35
 _register_upgrade(crusher_t2)
-	
+
 # Storage upgrades
 var storage_t1 = UpgradeDefinition.new()
 storage_t1.id = "storage_t1"
@@ -127,7 +127,7 @@ storage_t1.target_type = "storage"
 storage_t1.effects = {"capacity_multiplier": 2.0}
 storage_t1.unlock_depth = 5
 _register_upgrade(storage_t1)
-	
+
 var storage_t2 = UpgradeDefinition.new()
 storage_t2.id = "storage_t2"
 storage_t2.name = "Industrial Storage"
@@ -140,9 +140,9 @@ storage_t2.target_type = "storage"
 storage_t2.effects = {"capacity_multiplier": 3.0}
 storage_t2.unlock_depth = 30
 _register_upgrade(storage_t2)
-	
+
 # === WORKER UPGRADES ===
-	
+
 var worker_training = UpgradeDefinition.new()
 worker_training.id = "worker_training"
 worker_training.name = "Basic Training"
@@ -153,7 +153,7 @@ worker_training.cost = 250
 worker_training.effects = {"worker_efficiency": 1.15}
 worker_training.unlock_depth = 3
 _register_upgrade(worker_training)
-	
+
 var worker_advanced_training = UpgradeDefinition.new()
 worker_advanced_training.id = "worker_advanced_training"
 worker_advanced_training.name = "Advanced Training"
@@ -165,7 +165,7 @@ worker_advanced_training.prerequisites = ["worker_training"]
 worker_advanced_training.effects = {"worker_efficiency": 1.3}
 worker_advanced_training.unlock_depth = 15
 _register_upgrade(worker_advanced_training)
-	
+
 var worker_safety = UpgradeDefinition.new()
 worker_safety.id = "worker_safety"
 worker_safety.name = "Safety Equipment"
@@ -176,9 +176,9 @@ worker_safety.cost = 350
 worker_safety.effects = {"stamina_drain_reduction": 0.8}
 worker_safety.unlock_depth = 10
 _register_upgrade(worker_safety)
-	
+
 # === GLOBAL/TECHNOLOGY UPGRADES ===
-	
+
 var cart_upgrade = UpgradeDefinition.new()
 cart_upgrade.id = "cart_upgrade"
 cart_upgrade.name = "Mine Cart"
@@ -189,7 +189,7 @@ cart_upgrade.cost = 200
 cart_upgrade.effects = {"unlock_vehicle": "mine_cart"}
 cart_upgrade.unlock_depth = 5
 _register_upgrade(cart_upgrade)
-	
+
 var elevator_upgrade = UpgradeDefinition.new()
 elevator_upgrade.id = "elevator_upgrade"
 elevator_upgrade.name = "Mine Elevator"
@@ -200,7 +200,7 @@ elevator_upgrade.cost = 1000
 elevator_upgrade.effects = {"unlock_depth_bonus": 10}
 elevator_upgrade.unlock_depth = 15
 _register_upgrade(elevator_upgrade)
-	
+
 var dynamite = UpgradeDefinition.new()
 dynamite.id = "dynamite"
 dynamite.name = "Dynamite"
@@ -211,7 +211,7 @@ dynamite.cost = 500
 dynamite.effects = {"explosion_damage": 50, "unlock_explosives": true}
 dynamite.unlock_depth = 20
 _register_upgrade(dynamite)
-	
+
 var ventilation = UpgradeDefinition.new()
 ventilation.id = "ventilation"
 ventilation.name = "Ventilation System"
@@ -223,7 +223,7 @@ ventilation.prerequisites = ["elevator_upgrade"]
 ventilation.effects = {"max_depth_bonus": 20}
 ventilation.unlock_depth = 30
 _register_upgrade(ventilation)
-	
+
 var automation_hub = UpgradeDefinition.new()
 automation_hub.id = "automation_hub"
 automation_hub.name = "Automation Hub"
@@ -237,50 +237,50 @@ automation_hub.unlock_depth = 40
 _register_upgrade(automation_hub)
 
 func _register_upgrade(upgrade: UpgradeDefinition) -> void:
-_upgrades[upgrade.id] = upgrade
+	_upgrades[upgrade.id] = upgrade
 
 func get_upgrade(id: String) -> UpgradeDefinition:
-return _upgrades.get(id)
+	return _upgrades.get(id)
 
 func get_all_upgrades() -> Array:
-return _upgrades.values()
+	return _upgrades.values()
 
 func get_upgrades_by_type(type: String) -> Array:
-var result = []
+	var result = []
 for upgrade in _upgrades.values():
-if upgrade.upgrade_type == type:
-result.append(upgrade)
+	if upgrade.upgrade_type == type:
+	result.append(upgrade)
 return result
 
 func get_available_upgrades(unlocked_depth: int, owned_upgrades: Array[String]) -> Array:
-var result = []
+	var result = []
 for upgrade in _upgrades.values():
-if upgrade.unlock_depth <= unlocked_depth and upgrade.id not in owned_upgrades:
-# Check prerequisites
+	if upgrade.unlock_depth <= unlocked_depth and upgrade.id not in owned_upgrades:
+	# Check prerequisites
 var has_prereqs = true
 for prereq in upgrade.prerequisites:
 	if prereq not in owned_upgrades:
 	has_prereqs = false
-	break
+break
 if has_prereqs:
 	result.append(upgrade)
 return result
 
 func can_purchase_upgrade(upgrade_id: String, money: int, owned_upgrades: Array[String]) -> bool:
-var upgrade = _upgrades.get(upgrade_id)
+	var upgrade = _upgrades.get(upgrade_id)
 if not upgrade:
-return false
+	return false
 if money < upgrade.cost:
-return false
+	return false
 if upgrade_id in owned_upgrades:
-return false
+	return false
 for prereq in upgrade.prerequisites:
-if prereq not in owned_upgrades:
-return false
+	if prereq not in owned_upgrades:
+	return false
 return true
 
 func has_upgrade(id: String) -> bool:
-return _upgrades.has(id)
+	return _upgrades.has(id)
 
 func get_upgrade_count() -> int:
-return _upgrades.size()
+	return _upgrades.size()
