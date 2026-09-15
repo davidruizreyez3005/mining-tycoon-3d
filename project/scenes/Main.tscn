@@ -1,37 +1,44 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<scene uid="uid://main_scene_uid" type="PackedScene" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://godotengine.org/schema PackedScene.xsd">
-	<node name="Main" type="Node3D">
-		<node name="GameManager" type="Node" instance="res://scripts/core/game_manager.gd">
-		</node>
-		<node name="InputSystem" type="Node" instance="res://scripts/systems/input_system.gd">
-		</node>
-		<node name="CameraRig" type="Node3D">
-			<node name="Camera3D" type="Camera3D">
-				<transform property="position">
-					<vector3 x="0" y="15" z="-20" />
-				</transform>
-				<property name="fov" type="float"> 60 </property>
-				<property name="current" type="bool"> true </property>
-			</node>
-		</node>
-		<node name="World" type="Node3D">
-			<node name="Surface" type="Node3D">
-			</node>
-			<node name="Underground" type="Node3D">
-			</node>
-			<node name="Machines" type="Node3D">
-			</node>
-			<node name="Workers" type="Node3D">
-			</node>
-			<node name="Resources" type="Node3D">
-			</node>
-		</node>
-		<node name="UILayer" type="CanvasLayer">
-			<property name="layer" type="int"> 10 </property>
-		</node>
-		<node name="AudioManager" type="Node">
-		</node>
-		<node name="VFXManager" type="Node3D">
-		</node>
-	</node>
-</scene>
+[gd_scene load_steps=2 format=3 uid="uid://main_scene_uid"]
+
+[ext_resource type="Script" path="res://scripts/core/game_manager.gd" id="1_gm"]
+[ext_resource type="Script" path="res://scripts/systems/input_system.gd" id="2_input"]
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_gm")
+
+[node name="GameManager" type="Node" parent="."]
+
+[node name="InputSystem" type="Node" parent="."]
+script = ExtResource("2_input")
+
+[node name="CameraRig" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, -20)
+fov = 60.0
+current = true
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Surface" type="Node3D" parent="World"]
+
+[node name="Underground" type="Node3D" parent="World"]
+
+[node name="Machines" type="Node3D" parent="World"]
+
+[node name="Workers" type="Node3D" parent="World"]
+
+[node name="Resources" type="Node3D" parent="World"]
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="AudioManager" type="Node" parent="."]
+
+[node name="VFXManager" type="Node3D" parent="."]

@@ -1,78 +1,144 @@
-name: Build Android APK
+name: Android Build
 
 on:
   push:
-    branches: [main, master]
-    tags: ['v*']
+    branches: [ main ]
+    tags:
+      - 'v*'
   workflow_dispatch:
 
+env:
+  GODOT_VERSION: "4.2.2.stable"
+
 jobs:
-  build-android:
-    runs-on: ubuntu-latest
+  build-apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download Godot
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Download Godot 4.2.2
         run: |
           wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_linux.x86_64.zip
           unzip -q Godot_v4.2.2-stable_linux.x86_64.zip
           chmod +x Godot_v4.2.2-stable_linux.x86_64
-          sudo mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
+          mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
+          godot --version
 
-      - name: Validate project
-        run: test -f project/project.godot && echo "OK" || exit 1
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Create export config
+      - name: Download Android Export Templates
         run: |
-          cat > project/export_presets.cfg << 'EOF'
-[preset.0]
-name="Android"
-platform="Android"
-runnable=true
-export_path="../build/mining_tycoon.apk"
-[preset.0.options]
-gradle_build/use_gradle_build=true
-architectures/arm64-v8a=true
-package/unique_name="com.miningtycoon.game"
-version/code=1
-EOF
+          mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable
+          wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
+          unzip -q Godot_v4.2.2-stable_export_templates.tpz -d /tmp/godot_templates
+          ls -la /tmp/godot_templates/
+          cp -r /tmp/godot_templates/templates/* ~/.local/share/godot/export_templates/4.2.2.stable/
+          ls -la ~/.local/share/godot/export_templates/4.2.2.stable/
 
-      - name: Export APK
+      - name: Setup Android SDK manually
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip
+          mv cmdline-tools latest
+          rm cmdline-tools.zip
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "cmdline-tools;latest" "ndk;25.2.9519653" "cmake;3.22.1"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV
+
+      - name: Create Debug Keystore and Configure Godot Editor Settings
+        run: |
+          mkdir -p ~/.android
+          keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" 2>&1 || echo "Keystore created or already exists"
+          ls -la ~/.android/debug.keystore || true
+          
+          # Create Godot editor settings file with keystore configuration
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.tres << 'EOF'
+[gd_resource type="EditorSettings" format=3]
+
+[resource]
+android/keystore/debug_keystore = "/home/runner/.android/debug.keystore"
+android/keystore/debug_keystore_user = "androiddebugkey"
+android/keystore/debug_keystore_password = "android"
+EOF
+          cat ~/.config/godot/editor_settings-4.tres
+          
+          export ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
+          export ANDROID_KEYSTORE_PASS=android
+          export ANDROID_KEY_ALIAS=androiddebugkey
+          export ANDROID_KEY_PASS=android
+          echo "Keystore configured in editor settings"
+
+      - name: Verify project structure
+        run: |
+          echo "=== Project Files ==="
+          find project -type f | head -50
+          ls -la project/ || true
+          cat project/project.godot | head -20
+          cat project/scenes/Main.tscn | head -20
+          cat project/export_presets.cfg | head -20
+
+      - name: Export APK with Godot
         id: export
         run: |
-          mkdir -p build
-          cd project && godot --headless --path . --export-debug "Android" ../build/mining_tycoon.apk || true
-          cd ..
-          ls -la build/ || true
-
-      - name: Create fallback APK
-        if: steps.export.outcome != 'success' || ! test -s build/mining_tycoon.apk
-        run: |
-          mkdir -p build apk_tmp/META-INF apk_tmp/lib/arm64-v8a
-          echo "apk" > apk_tmp/classes.dex
-          (cd apk_tmp && zip -r ../build/mining_tycoon.apk .) || true
+          mkdir -p project/build
+          cd project
+          echo "Running Godot export..."
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          
+          # Configure Godot Android keystore via environment variables
+          export GODOT_ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
+          export GODOT_ANDROID_KEYSTORE_USER=androiddebugkey
+          export GODOT_ANDROID_KEYSTORE_PASSWORD=android
+          
+          echo "Keystore config:"
+          echo "GODOT_ANDROID_KEYSTORE_PATH=$GODOT_ANDROID_KEYSTORE_PATH"
+          ls -la /home/runner/.android/debug.keystore || true
+          
+          godot --headless --path . --export-debug "Android" build/MiningTycoon.apk 2>&1
+          echo "Export completed"
+          ls -lh build/ || true
+          find . -name "*.apk" -ls
 
       - name: Verify APK
-        run: test -f build/mining_tycoon.apk && ls -la build/mining_tycoon.apk
+        run: |
+          cd project/build
+          if [ -f MiningTycoon.apk ]; then
+            SIZE=$(stat -c%s MiningTycoon.apk)
+            echo "APK exists: $SIZE bytes"
+            if [ "$SIZE" -gt 1000 ]; then
+              echo "APK verification PASSED"
+              exit 0
+            fi
+          fi
+          echo "ERROR: APK not found or too small"
+          exit 1
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mining-tycoon-apk
-          path: build/mining_tycoon.apk
+          name: MiningTycoon-APK
+          path: project/build/MiningTycoon.apk
+          retention-days: 14
 
-      - name: Release on tag
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: build/mining_tycoon.apk
+          files: project/build/MiningTycoon.apk
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
