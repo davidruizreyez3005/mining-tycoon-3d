@@ -57,21 +57,29 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "PATH=$PATH" >> $GITHUB_ENV
 
-      - name: Create Debug Keystore and Configure Godot
+      - name: Create Debug Keystore and Configure Godot Editor Settings
         run: |
           mkdir -p ~/.android
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" 2>&1 || echo "Keystore created or already exists"
           ls -la ~/.android/debug.keystore || true
           
-          # Copy keystore to project user directory for Godot to find it
-          mkdir -p project/.godot/user_
-          cp ~/.android/debug.keystore project/.godot/user_/debug.keystore
+          # Create Godot editor settings file with keystore configuration
+          mkdir -p ~/.config/godot
+          cat > ~/.config/godot/editor_settings-4.tres << 'EOF'
+[gd_resource type="EditorSettings" format=3]
+
+[resource]
+android/keystore/debug_keystore = "/home/runner/.android/debug.keystore"
+android/keystore/debug_keystore_user = "androiddebugkey"
+android/keystore/debug_keystore_password = "android"
+EOF
+          cat ~/.config/godot/editor_settings-4.tres
           
           export ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
           export ANDROID_KEYSTORE_PASS=android
           export ANDROID_KEY_ALIAS=androiddebugkey
           export ANDROID_KEY_PASS=android
-          echo "Keystore configured"
+          echo "Keystore configured in editor settings"
 
       - name: Verify project structure
         run: |
