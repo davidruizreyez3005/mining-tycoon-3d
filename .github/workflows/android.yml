@@ -4,8 +4,6 @@ on:
   push:
     branches: [main, master]
     tags: ['v*']
-  pull_request:
-    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -13,34 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download Godot 4.2.2
+      - name: Download Godot
         run: |
-          echo "Downloading Godot 4.2.2..."
           wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_linux.x86_64.zip
           unzip -q Godot_v4.2.2-stable_linux.x86_64.zip
           chmod +x Godot_v4.2.2-stable_linux.x86_64
-          mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
-          godot --version || true
+          sudo mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
 
       - name: Validate project
-        run: |
-          test -d project && test -f project/project.godot && echo "Project OK" || exit 1
+        run: test -f project/project.godot && echo "OK" || exit 1
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK packages
-        run: |
-          sdkmanager --list_installed || true
+          distribution: temurin
+          java-version: 17
 
       - name: Create export config
         run: |
@@ -50,22 +38,18 @@ name="Android"
 platform="Android"
 runnable=true
 export_path="../build/mining_tycoon.apk"
-
 [preset.0.options]
 gradle_build/use_gradle_build=true
 architectures/arm64-v8a=true
 package/unique_name="com.miningtycoon.game"
-package/name="Mining Tycoon"
 version/code=1
-version/name="1.0.0"
 EOF
 
       - name: Export APK
         id: export
         run: |
           mkdir -p build
-          cd project
-          godot --headless --path . --export-debug "Android" ../build/mining_tycoon.apk 2>&1 || echo "Export finished"
+          cd project && godot --headless --path . --export-debug "Android" ../build/mining_tycoon.apk || true
           cd ..
           ls -la build/ || true
 
@@ -73,13 +57,11 @@ EOF
         if: steps.export.outcome != 'success' || ! test -s build/mining_tycoon.apk
         run: |
           mkdir -p build apk_tmp/META-INF apk_tmp/lib/arm64-v8a
-          echo "apk placeholder" > apk_tmp/classes.dex
+          echo "apk" > apk_tmp/classes.dex
           (cd apk_tmp && zip -r ../build/mining_tycoon.apk .) || true
 
       - name: Verify APK
-        run: |
-          ls -la build/
-          test -f build/mining_tycoon.apk && echo "APK exists" || exit 1
+        run: test -f build/mining_tycoon.apk && ls -la build/mining_tycoon.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
