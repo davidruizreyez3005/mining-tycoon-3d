@@ -43,18 +43,12 @@ jobs:
           mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable/android
           cp Godot_v4.2.2-stable_android_debug.apk ~/.local/share/godot/export_templates/4.2.2.stable/android/debug.apk
           cp Godot_v4.2.2-stable_android_release.apk ~/.local/share/godot/export_templates/4.2.2.stable/android/release.apk
-          echo "Export templates installed"
+          echo "✓ Export templates installed"
           ls -la ~/.local/share/godot/export_templates/4.2.2.stable/android/
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 11076708
-          accept-android-sdk-licenses: true
 
       - name: Ensure project structure exists
         run: |
-          mkdir -p project/scenes project/scripts/core project/data
+          mkdir -p project/scenes project/scripts/core project/data build
           
           if [ ! -f project/project.godot ]; then
             cat > project/project.godot << 'EOF'
@@ -78,7 +72,7 @@ version/name="1.0.0"
 package/unique_name="com.miningtycoon.game"
 package/name="Mining Tycoon 3D"
 EOF
-            echo "Created project.godot"
+            echo "✓ Created project.godot"
           fi
 
           if [ ! -f project/scenes/Main.tscn ]; then
@@ -95,7 +89,7 @@ transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.766044, 0.642788, 0, -0.321394, 0.383022, -0.866025, 0.55667, -0.663414, -0.5, 0, 10, 0)
 EOF
-            echo "Created Main.tscn"
+            echo "✓ Created Main.tscn"
           fi
 
           cat > project/export_presets.cfg << 'EOF'
@@ -138,7 +132,7 @@ permissions/custom_permissions=PackedStringArray()
 permissions/access_network_state=false
 permissions/internet=true
 EOF
-          echo "Created export_presets.cfg"
+          echo "✓ Created export_presets.cfg"
 
       - name: Validate project structure
         run: |
@@ -151,10 +145,9 @@ EOF
       - name: Export Android APK
         id: export
         run: |
-          mkdir -p build
           cd project
           echo "Starting Godot export..."
-          godot --headless --verbose --path . --export-debug "Android" ../build/MiningTycoon3D.apk 2>&1 | tee ../export.log
+          godot --headless --path . --export-debug "Android" ../build/MiningTycoon3D.apk 2>&1 | tee ../export.log
           export_code=$?
           echo "Export exit code: $export_code"
           
@@ -164,6 +157,7 @@ EOF
             echo "success=true" >> $GITHUB_OUTPUT
           else
             echo "⚠ Export failed or produced empty file"
+            ls -la ../build/ || echo "build directory doesn't exist"
             echo "success=false" >> $GITHUB_OUTPUT
           fi
 
@@ -173,11 +167,12 @@ EOF
           mkdir -p build
           cd build
           echo "Creating fallback APK..."
-          echo "Mining Tycoon 3D - Build placeholder" > info.txt
+          echo "Mining Tycoon 3D - Build info" > info.txt
           echo "Build time: $(date)" >> info.txt
+          echo "Note: Full Godot export requires complete project setup" >> info.txt
           zip -q MiningTycoon3D.apk info.txt
           rm info.txt
-          echo "Fallback APK created"
+          echo "✓ Fallback APK created"
           ls -lh MiningTycoon3D.apk
 
       - name: Verify APK
@@ -196,7 +191,7 @@ EOF
                 unzip -l build/MiningTycoon3D.apk | head -20
               fi
             else
-              echo "⚠ APK is very small"
+              echo "⚠ APK is very small (placeholder)"
             fi
           else
             echo "✗ APK not found"
