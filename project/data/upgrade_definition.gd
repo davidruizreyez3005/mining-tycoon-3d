@@ -29,7 +29,7 @@ func has_prerequisite(upgrade_id: String) -> bool:
 func can_apply_to(target_type_check: String) -> bool:
     if target_type.is_empty():
         return true
-return target_type == target_type_check
+        return target_type == target_type_check
 
 func get_display_name() -> String:
     return name if not name.is_empty() else id.capitalize()
@@ -41,13 +41,13 @@ func get_rarity_color() -> Color:
     match tier:
         1:
         return Color.GRAY
-2:
-    return Color.GREEN
-3:
-    return Color.BLUE
-4:
-    return Color.PURPLE
-5:
-    return Color.ORANGE
-_:
-    return Color.WHITE
+        2:
+        return Color.GREEN
+        3:
+        return Color.BLUE
+        4:
+        return Color.PURPLE
+        5:
+        return Color.ORANGE
+        _:
+        return Color.WHITE

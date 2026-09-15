@@ -52,21 +52,21 @@ func get_state_name(state: State) -> String:
     return State.keys()[state]
 
 func can_transition_to(target: State) -> bool:
-    var valid_targets = VALID_TRANSITIONS.get(current_state, [])
-return target in valid_targets
+var valid_targets = VALID_TRANSITIONS.get(current_state, [])
+    return target in valid_targets
 
 func transition_to(target: State) -> bool:
     if not can_transition_to(target):
         push_warning("Invalid state transition: %s -> %s" % [get_state_name(current_state), get_state_name(target)])
-return false
+        return false
 
-previous_state = current_state
-current_state = target
-state_history.append(target)
+        previous_state = current_state
+        current_state = target
+        state_history.append(target)
 
-print("State transition: %s -> %s" % [get_state_name(previous_state), get_state_name(current_state)])
-state_changed.emit(previous_state, current_state)
-return true
+        print("State transition: %s -> %s" % [get_state_name(previous_state), get_state_name(current_state)])
+        state_changed.emit(previous_state, current_state)
+        return true
 
 func is_in_gameplay() -> bool:
     return current_state in [State.PLAYING, State.UPGRADING, State.PROCESSING, State.TUTORIAL, State.DISCOVERY, State.QUEST]
@@ -76,14 +76,14 @@ func is_pauseable() -> bool:
 
 func save_state() -> Dictionary:
     return {
-"current_state": get_state_name(current_state),
-"previous_state": get_state_name(previous_state),
-"history_size": state_history.size()
-}
+    "current_state": get_state_name(current_state),
+    "previous_state": get_state_name(previous_state),
+    "history_size": state_history.size()
+    }
 
 func load_state(data: Dictionary) -> void:
     if data.has("current_state"):
-        var state_name = data["current_state"]
+var state_name = data["current_state"]
 var idx = State.keys().find(state_name)
-if idx >= 0:
-    current_state = idx
+        if idx >= 0:
+            current_state = idx

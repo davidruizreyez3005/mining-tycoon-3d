@@ -33,9 +33,9 @@ func has_ability(ability_id: String) -> bool:
     return ability_id in special_abilities
 
 func get_efficiency_with_bonuses(bonuses: Dictionary) -> float:
-    var eff = base_efficiency
+var eff = base_efficiency
     if bonuses.has("efficiency_multiplier"):
         eff *= bonuses["efficiency_multiplier"]
-    if bonuses.has("prestige_bonus"):
-        eff *= (1.0 + bonuses["prestige_bonus"])
-    return clamp(eff, 0.1, 5.0)
+        if bonuses.has("prestige_bonus"):
+            eff *= (1.0 + bonuses["prestige_bonus"])
+            return clamp(eff, 0.1, 5.0)
