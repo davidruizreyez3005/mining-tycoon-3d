@@ -63,7 +63,10 @@ jobs:
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" 2>&1 || echo "Keystore created or already exists"
           ls -la ~/.android/debug.keystore || true
           
-          mkdir -p ~/.config/godot
+          # Copy keystore to project user directory for Godot to find it
+          mkdir -p project/.godot/user_
+          cp ~/.android/debug.keystore project/.godot/user_/debug.keystore
+          
           export ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
           export ANDROID_KEYSTORE_PASS=android
           export ANDROID_KEY_ALIAS=androiddebugkey
