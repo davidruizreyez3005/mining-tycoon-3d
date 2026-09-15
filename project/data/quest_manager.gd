@@ -15,10 +15,10 @@ var _claimed_rewards: Array[String] = []
 var quest_catalog: Array[QuestDefinition] = []
 
 func _init() -> void:
-	_initialize_quests()
+    _initialize_quests()
 
 func _initialize_quests() -> void:
-	# === MINING QUESTS ===
+    # === MINING QUESTS ===
 
 var mine_stone = QuestDefinition.new()
 mine_stone.id = "mine_stone_100"
@@ -194,18 +194,18 @@ first_prestige.difficulty = 4
 _register_quest(first_prestige)
 
 func _register_quest(quest: QuestDefinition) -> void:
-	quest_catalog.append(quest)
+    quest_catalog.append(quest)
 _quests[quest.id] = quest
 _progress[quest.id] = 0
 
 func update_progress(quest_id: String, amount: int) -> void:
-	if not _quests.has(quest_id):
-	return
+    if not _quests.has(quest_id):
+        return
 
 if quest_id in _completed:
-	var quest = _quests[quest_id]
+    var quest = _quests[quest_id]
 if not quest.is_repeatable:
-	return
+    return
 
 _progress[quest_id] = max(0, _progress[quest_id] + amount)
 
@@ -214,11 +214,11 @@ quest_progress_updated.emit(quest_id, _progress[quest_id], quest.target_value)
 
 # Check completion
 if quest.is_complete(_progress[quest_id]) and quest_id not in _completed:
-	_complete_quest(quest_id)
+    _complete_quest(quest_id)
 
 func set_progress(quest_id: String, value: int) -> void:
-	if not _quests.has(quest_id):
-	return
+    if not _quests.has(quest_id):
+        return
 
 _progress[quest_id] = value
 
@@ -226,21 +226,21 @@ var quest = _quests[quest_id]
 quest_progress_updated.emit(quest_id, _progress[quest_id], quest.target_value)
 
 if quest.is_complete(_progress[quest_id]) and quest_id not in _completed:
-	_complete_quest(quest_id)
+    _complete_quest(quest_id)
 
 func _complete_quest(quest_id: String) -> void:
-	_completed.append(quest_id)
+    _completed.append(quest_id)
 quest_completed.emit(quest_id)
 print("Quest completed: %s" % quest_id)
 
 func claim_reward(quest_id: String) -> bool:
-	if quest_id not in _completed:
-	return false
+    if quest_id not in _completed:
+        return false
 
 if quest_id in _claimed_rewards:
-	var quest = _quests[quest_id]
+    var quest = _quests[quest_id]
 if not quest.is_repeatable:
-	return false
+    return false
 # Reset for repeatable
 _progress[quest_id] = 0
 _completed.erase(quest_id)
@@ -258,58 +258,58 @@ reward_claimed.emit(quest_id, rewards)
 return true
 
 func get_quest(quest_id: String) -> QuestDefinition:
-	return _quests.get(quest_id)
+    return _quests.get(quest_id)
 
 func get_all_quests() -> Array[QuestDefinition]:
-	return quest_catalog
+    return quest_catalog
 
 func get_available_quests() -> Array[QuestDefinition]:
-	var result = []
+    var result = []
 for quest in quest_catalog:
-	if quest.hidden and _progress[quest.id] <= 0:
-	continue
+    if quest.hidden and _progress[quest.id] <= 0:
+        continue
 if quest.id not in _completed or quest.is_repeatable:
-	result.append(quest)
+    result.append(quest)
 return result
 
 func get_completed_quests() -> Array[String]:
-	return _completed.duplicate()
+    return _completed.duplicate()
 
 func get_unclaimed_rewards() -> Array[String]:
-	var result = []
+    var result = []
 for quest_id in _completed:
-	if quest_id not in _claimed_rewards:
-	result.append(quest_id)
+    if quest_id not in _claimed_rewards:
+        result.append(quest_id)
 return result
 
 func get_progress(quest_id: String) -> int:
-	return _progress.get(quest_id, 0)
+    return _progress.get(quest_id, 0)
 
 func is_completed(quest_id: String) -> bool:
-	return quest_id in _completed
+    return quest_id in _completed
 
 func can_claim(quest_id: String) -> bool:
-	return quest_id in _completed and quest_id not in _claimed_rewards
+    return quest_id in _completed and quest_id not in _claimed_rewards
 
 func get_total_completed() -> int:
-	return _completed.size()
+    return _completed.size()
 
 func get_completion_percentage() -> float:
-	if quest_catalog.is_empty():
-	return 0.0
+    if quest_catalog.is_empty():
+        return 0.0
 return float(_completed.size()) / float(quest_catalog.size()) * 100.0
 
 func save_state() -> Dictionary:
-	return {
+    return {
 "progress": _progress.duplicate(),
 "completed": _completed.duplicate(),
 "claimed": _claimed_rewards.duplicate()
 }
 
 func load_state(data: Dictionary) -> void:
-	if data.has("progress"):
-	_progress.merge(data["progress"], true)
+    if data.has("progress"):
+        _progress.merge(data["progress"], true)
 if data.has("completed"):
-	_completed = data["completed"].duplicate()
+    _completed = data["completed"].duplicate()
 if data.has("claimed"):
-	_claimed_rewards = data["claimed"].duplicate()
+    _claimed_rewards = data["claimed"].duplicate()

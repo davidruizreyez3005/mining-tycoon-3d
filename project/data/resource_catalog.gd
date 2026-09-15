@@ -7,10 +7,10 @@ class_name ResourceCatalog
 var _resources: Dictionary = {}
 
 func _init() -> void:
-	_initialize_default_resources()
+    _initialize_default_resources()
 
 func _initialize_default_resources() -> void:
-	# Create default resource definitions programmatically
+    # Create default resource definitions programmatically
 # In production, these would be loaded from .tres files
 
 var stone = ResourceDefinition.new()
@@ -133,42 +133,42 @@ diamond.production_modifiers = {"value_multiplier": 1.5}
 _register_resource(diamond)
 
 func _register_resource(resource: ResourceDefinition) -> void:
-	_resources[resource.id] = resource
+    _resources[resource.id] = resource
 
 func get_resource(id: String) -> ResourceDefinition:
-	return _resources.get(id)
+    return _resources.get(id)
 
 func get_all_resources() -> Array:
-	return _resources.values()
+    return _resources.values()
 
 func get_resources_by_rarity(rarity: String) -> Array:
-	var result = []
+    var result = []
 for resource in _resources.values():
-	if resource.rarity == rarity:
-	result.append(resource)
+    if resource.rarity == rarity:
+        result.append(resource)
 return result
 
 func get_available_at_depth(depth: int) -> Array:
-	var result = []
+    var result = []
 for resource in _resources.values():
-	if resource.can_be_mined_at_depth(depth):
-	result.append(resource)
+    if resource.can_be_mined_at_depth(depth):
+        result.append(resource)
 return result
 
 func get_common_resources() -> Array:
-	return get_resources_by_rarity("common")
+    return get_resources_by_rarity("common")
 
 func get_uncommon_resources() -> Array:
-	return get_resources_by_rarity("uncommon")
+    return get_resources_by_rarity("uncommon")
 
 func get_rare_resources() -> Array:
-	return get_resources_by_rarity("rare")
+    return get_resources_by_rarity("rare")
 
 func get_very_rare_resources() -> Array:
-	return get_resources_by_rarity("very_rare")
+    return get_resources_by_rarity("very_rare")
 
 func has_resource(id: String) -> bool:
-	return _resources.has(id)
+    return _resources.has(id)
 
 func get_resource_count() -> int:
-	return _resources.size()
+    return _resources.size()

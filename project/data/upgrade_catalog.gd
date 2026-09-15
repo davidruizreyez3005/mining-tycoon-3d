@@ -6,10 +6,10 @@ class_name UpgradeCatalog
 var _upgrades: Dictionary = {}
 
 func _init() -> void:
-	_initialize_default_upgrades()
+    _initialize_default_upgrades()
 
 func _initialize_default_upgrades() -> void:
-	# === MACHINE UPGRADES ===
+    # === MACHINE UPGRADES ===
 
 # Pickaxe upgrades (early game)
 var pickaxe_t2 = UpgradeDefinition.new()
@@ -237,50 +237,50 @@ automation_hub.unlock_depth = 40
 _register_upgrade(automation_hub)
 
 func _register_upgrade(upgrade: UpgradeDefinition) -> void:
-	_upgrades[upgrade.id] = upgrade
+    _upgrades[upgrade.id] = upgrade
 
 func get_upgrade(id: String) -> UpgradeDefinition:
-	return _upgrades.get(id)
+    return _upgrades.get(id)
 
 func get_all_upgrades() -> Array:
-	return _upgrades.values()
+    return _upgrades.values()
 
 func get_upgrades_by_type(type: String) -> Array:
-	var result = []
+    var result = []
 for upgrade in _upgrades.values():
-	if upgrade.upgrade_type == type:
-	result.append(upgrade)
+    if upgrade.upgrade_type == type:
+        result.append(upgrade)
 return result
 
 func get_available_upgrades(unlocked_depth: int, owned_upgrades: Array[String]) -> Array:
-	var result = []
+    var result = []
 for upgrade in _upgrades.values():
-	if upgrade.unlock_depth <= unlocked_depth and upgrade.id not in owned_upgrades:
-	# Check prerequisites
+    if upgrade.unlock_depth <= unlocked_depth and upgrade.id not in owned_upgrades:
+    # Check prerequisites
 var has_prereqs = true
 for prereq in upgrade.prerequisites:
-	if prereq not in owned_upgrades:
-	has_prereqs = false
+    if prereq not in owned_upgrades:
+        has_prereqs = false
 break
 if has_prereqs:
-	result.append(upgrade)
+    result.append(upgrade)
 return result
 
 func can_purchase_upgrade(upgrade_id: String, money: int, owned_upgrades: Array[String]) -> bool:
-	var upgrade = _upgrades.get(upgrade_id)
+    var upgrade = _upgrades.get(upgrade_id)
 if not upgrade:
-	return false
+    return false
 if money < upgrade.cost:
-	return false
+    return false
 if upgrade_id in owned_upgrades:
-	return false
+    return false
 for prereq in upgrade.prerequisites:
-	if prereq not in owned_upgrades:
-	return false
+    if prereq not in owned_upgrades:
+        return false
 return true
 
 func has_upgrade(id: String) -> bool:
-	return _upgrades.has(id)
+    return _upgrades.has(id)
 
 func get_upgrade_count() -> int:
-	return _upgrades.size()
+    return _upgrades.size()

@@ -20,44 +20,28 @@ class_name QuestDefinition
 @export var difficulty: int = 1  # 1-5 stars
 
 func get_display_name() -> String:
-	return name if not name.is_empty() else id.capitalize()
+return name if not name.is_empty() else id.capitalize()
 
 func get_description() -> String:
-	var desc = description
+var desc = description
 if desc.is_empty():
-	desc = "%s %d" % [objective_type.capitalize(), target_value]
+desc = "%s %d" % [objective_type.capitalize(), target_value]
 if not target_resource.is_empty():
-	desc += " %s" % target_resource.capitalize()
+desc += " %s" % target_resource.capitalize()
 return desc
 
 func get_progress_text(current: int) -> String:
-	return "%d / %d" % [current, target_value]
+return "%d / %d" % [current, target_value]
 
 func is_complete(current: int) -> bool:
-	return current >= target_value
+return current >= target_value
 
 func get_reward_summary() -> String:
-	var parts = []
+var parts = []
 if reward_money > 0:
-	parts.append("$%d" % reward_money)
+parts.append("$%d" % reward_money)
 if reward_prestige > 0:
-	parts.append("%d Prestige" % reward_prestige)
+parts.append("%d Prestige" % reward_prestige)
 if not reward_items.is_empty():
-	parts.append("%d unlocks" % reward_items.size())
-return ", ".join(parts)
-
-func get_difficulty_stars() -> int:
-	return clamp(difficulty, 1, 5)
-
-func get_category_color() -> Color:
-	match category:
-	"mining":
-	return Color.BROWN
-"economy":
-	return Color.GOLD
-"exploration":
-	return Color.BLUE
-"automation":
-	return Color.PURPLE
-_:
-	return Color.GRAY
+parts.append("%d items" % reward_items.size())
+return ", ".join(parts) if not parts.is_empty() else "None"
