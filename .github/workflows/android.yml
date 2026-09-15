@@ -74,9 +74,10 @@ custom_template/debug=""
 custom_template/release=""
 debug/export_debug=true
 debug/external_apk_expansion_file=false
+architectures/armeabi-v7a=false
 architectures/arm64-v8a=true
-architectures/x86=
-architectures/x86_64=
+architectures/x86=false
+architectures/x86_64=false
 package/unique_name="com.miningtycoon.game"
 package/name="MiningTycoon3D"
 package/signed=true
@@ -84,8 +85,6 @@ package/app_category=0
 package/retain_data_on_uninstall=false
 package/exclude_from_recents=false
 package/show_in_android_tv=false
-package/show_in_general_app_section=true
-package/show_as_launcher_app=false
 launcher_icons/main_192x192=""
 launcher_icons/adaptive_foreground_432x432=""
 launcher_icons/adaptive_background_432x432=""
@@ -103,8 +102,8 @@ apk_expansion/SALT=""
 apk_expansion/public_key=""
 permissions/access_network_state=true
 permissions/internet=true
-permissions/write_external_storage=
-permissions/read_external_storage=
+version/code=1
+version/name="1.0.0"
 EOF
           cat project/export_presets.cfg
 
