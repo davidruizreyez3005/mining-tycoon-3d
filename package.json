@@ -1,0 +1,44 @@
+{
+  "name": "3d-miner-mania",
+  "version": "1.0.0",
+  "description": "3D Mobile Mining Tycoon Game",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "cap:init": "cap init",
+    "cap:add:android": "cap add android",
+    "cap:sync": "cap sync android",
+    "cap:open:android": "cap open android",
+    "lint": "tsc --noEmit",
+    "test": "node --experimental-specifier-resolution=node tests/economy.test.js"
+  },
+  "keywords": [
+    "game",
+    "mining",
+    "tycoon",
+    "idle",
+    "three.js",
+    "android"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "howler": "^2.2.4",
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^7.6.9",
+    "@capacitor/core": "^8.5.2",
+    "@types/howler": "^2.2.12",
+    "@types/node": "^26.5.1",
+    "@types/three": "^0.186.0",
+    "gltf-validator": "^2.0.0-dev.3.10",
+    "terser": "^5.51.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}
