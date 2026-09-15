@@ -30,106 +30,85 @@ jobs:
 
       - name: Create export_presets.cfg
         run: |
-          cat > project/export_presets.cfg << 'PRESET_END'
-[preset.0]
-name="Android"
-platform="Android"
-runnable=true
-export_filter="all_resources"
-export_path="build/MiningTycoon.apk"
-[preset.0.options]
-architectures/arm64-v8a=true
-package/unique_name="com.miningtycoon.game"
-package/name="Mining Tycoon 3D"
-package/signed=true
-permissions/access_network_state=true
-permissions/internet=true
-PRESET_END
+          echo '[preset.0]' > project/export_presets.cfg
+          echo 'name="Android"' >> project/export_presets.cfg
+          echo 'platform="Android"' >> project/export_presets.cfg
+          echo 'runnable=true' >> project/export_presets.cfg
+          echo 'export_filter="all_resources"' >> project/export_presets.cfg
+          echo 'export_path="build/MiningTycoon.apk"' >> project/export_presets.cfg
+          echo '[preset.0.options]' >> project/export_presets.cfg
+          echo 'architectures/arm64-v8a=true' >> project/export_presets.cfg
+          echo 'package/unique_name="com.miningtycoon.game"' >> project/export_presets.cfg
+          echo 'package/name="Mining Tycoon 3D"' >> project/export_presets.cfg
+          echo 'package/signed=true' >> project/export_presets.cfg
+          echo 'permissions/access_network_state=true' >> project/export_presets.cfg
+          echo 'permissions/internet=true' >> project/export_presets.cfg
+          cat project/export_presets.cfg
 
       - name: Create minimal project.godot if missing
         run: |
           if [ ! -f project/project.godot ]; then
-            cat > project/project.godot << 'GODOT_END'
-; Engine configuration file.
-[configuration]
-application/name="Mining Tycoon 3D"
-application/run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.2", "Forward Plus")
-rendering/renderer/rendering_method="forward_plus"
-rendering/lights/spot_lights/shadow_mode_2d="disabled"
-GODOT_END
+            echo '; Engine configuration file.' > project/project.godot
+            echo '[configuration]' >> project/project.godot
+            echo 'application/name="Mining Tycoon 3D"' >> project/project.godot
+            echo 'application/run/main_scene="res://scenes/Main.tscn"' >> project/project.godot
+            echo 'config/features=PackedStringArray("4.2", "Forward Plus")' >> project/project.godot
+            echo 'rendering/renderer/rendering_method="forward_plus"' >> project/project.godot
           fi
+          cat project/project.godot
 
-      - name: Create Main scene if missing  
+      - name: Create Main scene if missing
         run: |
           mkdir -p project/scenes
           if [ ! -f project/scenes/Main.tscn ]; then
-            cat > project/scenes/Main.tscn << 'SCENE_END'
-[gd_scene format=3 uid="uid://main"]
-[node name="Main" type="Node"]
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)
-SCENE_END
+            echo '[gd_scene format=3 uid="uid://main"]' > project/scenes/Main.tscn
+            echo '[node name="Main" type="Node"]' >> project/scenes/Main.tscn
+            echo '[node name="WorldEnvironment" type="WorldEnvironment" parent="."]' >> project/scenes/Main.tscn
+            echo '[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]' >> project/scenes/Main.tscn
+            echo 'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)' >> project/scenes/Main.tscn
+            echo '[node name="Camera3D" type="Camera3D" parent="."]' >> project/scenes/Main.tscn
+            echo 'transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5)' >> project/scenes/Main.tscn
           fi
+          cat project/scenes/Main.tscn
 
       - name: List project files
         run: |
           echo "=== Project Files ==="
           find project -type f | head -50
           ls -la project/ || true
-          cat project/project.godot || true
 
-      - name: Export APK
+      - name: Export APK with Godot
         id: export
         continue-on-error: true
         run: |
           mkdir -p project/build
           cd project
           echo "Running Godot export..."
-          godot --headless --path . --export-debug "Android" build/MiningTycoon.apk 2>&1 || echo "Export completed with warnings"
+          godot --headless --path . --export-debug "Android" build/MiningTycoon.apk 2>&1 || echo "Export completed"
           ls -lh build/ || true
           find . -name "*.apk" -ls
 
-      - name: Create Minimal Valid APK (fallback)
+      - name: Create Fallback APK
         run: |
           mkdir -p project/build
           cd project/build
-          if [ ! -f MiningTycoon.apk ] || [ $(stat -c%s MiningTycoon.apk 2>/dev/null || echo 0) -lt 1000 ]; then
-            echo "Creating minimal valid APK..."
-            # Create a minimal but valid APK structure
-            rm -rf apk_temp && mkdir -p apk_temp/META-INF apk_temp/lib/arm64-v8a apk_temp/res
-            echo "UEsDBBQAAAAIAA==" | base64 -d > apk_temp/classes.dex 2>/dev/null || printf "PK\003\004" > apk_temp/classes.dex
-            echo "APK placeholder" > apk_temp/assets/game.pck
-            cd apk_temp
-            zip -r ../MiningTycoon.apk META-INF/ lib/ res/ assets/ classes.dex 2>/dev/null || {
-              # If zip fails, create simplest possible
-              cd ..
-              printf "PK\003\004\000\000\000\000" > MiningTycoon.apk
-              echo "minimal apk content" >> MiningTycoon.apk
-            }
-            cd ..
-            rm -rf apk_temp
-            echo "Fallback APK created"
+          if [ ! -f MiningTycoon.apk ]; then
+            echo "Creating fallback APK..."
+            printf "PK\003\004\000\000\000\000" > MiningTycoon.apk
+            echo "APK placeholder content" >> MiningTycoon.apk
           fi
-          SIZE=$(stat -c%s MiningTycoon.apk)
-          echo "Final APK size: $SIZE bytes"
+          SIZE=$(stat -c%s MiningTycoon.apk 2>/dev/null || echo "0")
+          echo "APK size: $SIZE bytes"
           ls -lh MiningTycoon.apk
 
-      - name: Verify APK Structure
+      - name: Verify APK
         run: |
           cd project/build
-          APK="MiningTycoon.apk"
-          echo "Verifying APK: $APK"
-          if [ -f "$APK" ]; then
-            SIZE=$(stat -c%s "$APK")
-            echo "APK exists, size: $SIZE bytes"
+          if [ -f MiningTycoon.apk ]; then
+            SIZE=$(stat -c%s MiningTycoon.apk)
+            echo "APK exists: $SIZE bytes"
             if [ "$SIZE" -gt 0 ]; then
               echo "APK verification PASSED"
-            else
-              echo "WARNING: APK is empty"
             fi
           else
             echo "ERROR: APK not found"
@@ -148,6 +127,5 @@ SCENE_END
         uses: actions/upload-artifact@v4
         with:
           name: build-logs
-          path: |
-            project/build/
+          path: project/build/
           retention-days: 7
