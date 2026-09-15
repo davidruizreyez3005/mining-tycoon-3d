@@ -3,7 +3,12 @@ name: Android Build
 on:
   push:
     branches: [ main ]
+    tags:
+      - 'v*'
   workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.2.2.stable"
 
 jobs:
   build-apk:
@@ -57,33 +62,12 @@ jobs:
           keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" 2>&1 || echo "Keystore created or already exists"
           ls -la ~/.android/debug.keystore || true
           
-          # Configure Godot to use the debug keystore
           mkdir -p ~/.config/godot
-          cat > ~/.config/godot/editor_settings-4.tres <<EOF
-[gd_resource type="EditorSettings" load_steps=2 format=3 uid="uid://editor_settings"]
-
-[ext_resource type="ConfigFile" path="export.cfg" id="1_export"]
-
-[resource]
-config_version=5
-
-[preset.0]
-
-name="Android"
-platform="Android"
-runnable=true
-
-[preset.0.options]
-
-package/unique_name="com.miningtycoon.game"
-package/name="Mining Tycoon 3D"
-package/signed=true
-keystore/release="/home/runner/.android/debug.keystore"
-keystore/release_user="androiddebugkey"
-keystore/release_password="android"
-
-EOF
-          echo "Godot editor settings configured"
+          export ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
+          export ANDROID_KEYSTORE_PASS=android
+          export ANDROID_KEY_ALIAS=androiddebugkey
+          export ANDROID_KEY_PASS=android
+          echo "Keystore configured"
 
       - name: Verify project structure
         run: |
@@ -102,6 +86,10 @@ EOF
           echo "Running Godot export..."
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          export ANDROID_KEYSTORE_PATH=/home/runner/.android/debug.keystore
+          export ANDROID_KEYSTORE_PASS=android
+          export ANDROID_KEY_ALIAS=androiddebugkey
+          export ANDROID_KEY_PASS=android
           godot --headless --path . --export-debug "Android" build/MiningTycoon.apk 2>&1
           echo "Export completed"
           ls -lh build/ || true
