@@ -268,7 +268,7 @@ func get_available_quests() -> Array[QuestDefinition]:
 	for quest in quest_catalog:
 		if quest.hidden and _progress[quest.id] <= 0:
 			continue
-		if quest_id not in _completed or quest.is_repeatable:
+		if quest.id not in _completed or quest.is_repeatable:
 			result.append(quest)
 	return result
 

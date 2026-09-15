@@ -17,42 +17,42 @@ class_name ResourceDefinition
 @export var icon_texture: Texture2D
 
 func get_display_name() -> String:
-return name if name.is_empty() == false else id.capitalize()
+	return name if not name.is_empty() else id.capitalize()
 
 func get_base_value() -> int:
-return base_value
+	return base_value
 
 func get_calculated_value(modifiers: Dictionary = {}) -> int:
-var value = float(base_value)
-
-if production_modifiers.has("value_multiplier"):
-value *= production_modifiers["value_multiplier"]
-
-if modifiers.has("value_multiplier"):
-value *= modifiers["value_multiplier"]
-
-if modifiers.has("prestige_bonus"):
-value *= (1.0 + modifiers["prestige_bonus"])
-
-return int(value)
+	var value = float(base_value)
+	
+	if production_modifiers.has("value_multiplier"):
+		value *= production_modifiers["value_multiplier"]
+	
+	if modifiers.has("value_multiplier"):
+		value *= modifiers["value_multiplier"]
+	
+	if modifiers.has("prestige_bonus"):
+		value *= (1.0 + modifiers["prestige_bonus"])
+	
+	return int(value)
 
 func can_be_mined_at_depth(depth: int) -> bool:
-return depth >= unlock_depth
+	return depth >= unlock_depth
 
 func requires_processing() -> bool:
-return not processing_requirement.is_empty()
+	return not processing_requirement.is_empty()
 
 func get_rarity_color() -> Color:
-match rarity:
-"common":
-return Color.GRAY
-"uncommon":
-return Color.GREEN
-"rare":
-return Color.BLUE
-"very_rare":
-return Color.PURPLE
-"legendary":
-return Color.ORANGE
-_:
-return Color.WHITE
+	match rarity:
+		"common":
+			return Color.GRAY
+		"uncommon":
+			return Color.GREEN
+		"rare":
+			return Color.BLUE
+		"very_rare":
+			return Color.PURPLE
+		"legendary":
+			return Color.ORANGE
+		_:
+			return Color.WHITE
