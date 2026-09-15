@@ -33,11 +33,31 @@ window/stretch/aspect="expand"
 
 [input_maps]
 
-ui_touch_interaction=InputMapActionEvent(New, touch)
-ui_pan_camera=InputMapActionEvent(New, mouse_motion)
-ui_zoom=InputMapActionEvent(New, mouse_wheel)
-ui_select=InputMapActionEvent(New, left_click)
-ui_cancel=InputMapActionEvent(New, ui_cancel)
+ui_touch_interaction={
+"deadzone": 0.5,
+"events": [Object(InputEventAction,"resource_local_to_scene":false,"resource_name":"","device":-1,"action":"touch","pressed":true)
+]
+}
+ui_pan_camera={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseMotion,"resource_local_to_scene":false,"resource_name":"","position":Vector2(0, 0),"relative":Vector2(0, 0),"screen_relative":Vector2(0, 0),"button_mask":0,"shift_pressed":false,"alt_pressed":false,"meta_pressed":false,"ctrl_pressed":false)
+]
+}
+ui_zoom={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":0,"canceled":false,"pressed":true,"double_click":false,"script":null)
+]
+}
+ui_select={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":true,"double_click":false,"script":null)
+]
+}
+ui_cancel={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"keycode":0,"physical_keycode":4194305,"key_label":0,"unicode":0,"echo":false,"pressed":true)
+]
+}
 
 [layer_names]
 
